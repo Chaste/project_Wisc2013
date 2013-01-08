@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="../../../FunctionalCuration/src/proto/parsing/protocol.rnc" type="application/relax-ng-compact-syntax"?>
+<protocol xmlns="https://chaste.cs.ox.ac.uk/nss/protocol/0.1#"
+    xmlns:cellml="http://www.cellml.org/cellml/1.0#"
+    xmlns:proto="https://chaste.cs.ox.ac.uk/nss/protocol/0.1#"
+    xmlns:cellbased="https://chaste.cs.ox.ac.uk/nss/cellbased/0.1#">
+    
+    <inputs>
+        <apply xmlns="http://www.w3.org/1998/Math/MathML">
+            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/statementList"/>
+            <!-- The number of boxes to use in the location histogram -->
+            <apply><eq/>
+                <ci>num_boxes</ci>
+                <cn>10</cn>
+            </apply>
+        </apply>
+    </inputs>
+    
+    <!-- Import the standard library of post-processing operations -->
+    <import source="../../../FunctionalCuration/src/proto/library/BasicLibrary.xml" prefix="std"/>
+    
+    <!-- Define some extra utility functions -->
+    <library>
+        <apply xmlns="http://www.w3.org/1998/Math/MathML">
+            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/statementList"/>
+            <!-- InBox(loc, box_low, box_high) = loc >= box_low && loc < box_high -->
+            <apply><eq/>
+                <ci>InBox</ci>
+                <lambda>
+                    <bvar><ci>loc</ci></bvar>
+                    <bvar><ci>box_low</ci></bvar>
+                    <bvar><ci>box_high</ci></bvar>
+                    <apply><and/>
+                        <apply><geq/>
+                            <ci>loc</ci>
+                            <ci>box_low</ci>
+                        </apply>
+                        <apply><lt/>
+                            <ci>loc</ci>
+                            <ci>box_high</ci>
+                        </apply>
+                    </apply>
+                </lambda>
+            </apply>
+            <!-- Stretch(array, length, dim) = std:Stretch(std:AddDim(array, dim), length, dim) -->
+            <apply><eq/>
+                <ci>Stretch</ci>
+                <lambda>
+                    <bvar><ci>array</ci></bvar>
+                    <bvar><ci>length</ci></bvar>
+                    <bvar><ci>dim</ci></bvar>
+                    <apply><ci>std:Stretch</ci>
+                        <apply><ci>std:AddDim</ci>
+                            <ci>array</ci>
+                            <ci>dim</ci>
+                        </apply>
+                        <ci>length</ci>
+                        <ci>dim</ci>
+                    </apply>
+                </lambda>
+            </apply>
+        </apply>
+    </library>
+    
+    <simulations>
+        <!-- Just run the cell-based simulation -->
+        <oneStep prefix="sim"/>
+    </simulations>
+    
+    <post-processing>
+        <apply xmlns="http://www.w3.org/1998/Math/MathML">
+            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/statementList"/>
+            <!-- Check we have the expected results -->
+            <!-- Check it's an array -->
+            <apply>
+                <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/assert"/>
+                <apply>
+                    <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/accessor">IS_ARRAY</csymbol>
+                    <ci>sim:divisions</ci>
+                </apply>
+            </apply>
+            <!-- Check it's 2d -->
+            <apply>
+                <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/assert"/>
+                <apply><eq/>
+                    <apply>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/accessor">NUM_DIMS</csymbol>
+                        <ci>sim:divisions</ci>
+                    </apply>
+                    <cn>2</cn>
+                </apply>
+            </apply>
+            <!-- Check the number of rows -->
+            <apply>
+                <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/assert"/>
+                <apply><eq/>
+                    <apply>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/view"/>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/accessor">SHAPE</csymbol>
+                            <ci>sim:divisions</ci>
+                        </apply>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                            <cn>0</cn><cn>0</cn><cn>0</cn>
+                        </apply>
+                    </apply>
+                    <cn>239</cn>
+                </apply>
+            </apply>
+            <!-- Check the number of columns -->
+            <apply>
+                <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/assert"/>
+                <apply><eq/>
+                    <apply>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/view"/>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/accessor">SHAPE</csymbol>
+                            <ci>sim:divisions</ci>
+                        </apply>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                            <cn>1</cn><cn>0</cn><cn>1</cn>
+                        </apply>
+                    </apply>
+                    <cn>4</cn>
+                </apply>
+            </apply>
+            <!-- Check the initial value -->
+            <apply>
+                <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/assert"/>
+                <apply><eq/>
+                    <apply>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/view"/>
+                        <ci>sim:divisions</ci>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                            <cn>0</cn><cn>0</cn><cn>0</cn>
+                        </apply>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                            <cn>0</cn><cn>0</cn><cn>0</cn>
+                        </apply>
+                    </apply>
+                    <cn>0.85</cn>
+                </apply>
+            </apply>
+            <!-- Check the final value -->
+            <apply>
+                <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/assert"/>
+                <apply><eq/>
+                    <apply>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/view"/>
+                        <ci>sim:divisions</ci>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                            <cn>-1</cn><cn>0</cn><cn>-1</cn>
+                        </apply>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                            <cn>2</cn><cn>0</cn><cn>2</cn>
+                        </apply>
+                    </apply>
+                    <cn>0.00816474</cn>
+                </apply>
+            </apply>
+            
+            <!-- Now do the real post-processing of results -->
+            <!-- locations = sim:divisions[1$2] -->
+            <apply><eq/>
+                <ci>locations</ci>
+                <apply>
+                    <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/view"/>
+                    <ci>sim:divisions</ci>
+                    <apply>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                        <cn>1</cn><cn>2</cn><cn>0</cn><cn>2</cn>
+                    </apply>
+                    <apply>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/null"/>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/null"/>
+                        <cn>1</cn>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/null"/>
+                    </apply>
+                </apply>
+            </apply>
+            <!-- crypt_base = floor(Min(locations)) -->
+            <apply><eq/>
+                <ci>crypt_base</ci>
+                <apply><floor/>
+                    <apply><ci>std:RemoveDim</ci>
+                        <apply><ci>std:Min</ci>
+                            <ci>locations</ci>
+                        </apply>
+                        <cn>0</cn>
+                    </apply>
+                </apply>
+            </apply>
+            <!-- crypt_top = ceiling(Max(locations)) -->
+            <apply><eq/>
+                <ci>crypt_top</ci>
+                <apply><ceiling/>
+                    <apply><ci>std:RemoveDim</ci>
+                        <apply><ci>std:Max</ci>
+                            <ci>locations</ci>
+                        </apply>
+                        <cn>0</cn>
+                    </apply>
+                </apply>
+            </apply>
+            <!-- box_size = (crypt_top - crypt_base) / num_boxes -->
+            <apply><eq/>
+                <ci>box_size</ci>
+                <apply><divide/>
+                    <apply><minus/>
+                        <ci>crypt_top</ci>
+                        <ci>crypt_base</ci>
+                    </apply>
+                    <ci>num_boxes</ci>
+                </apply>
+            </apply>
+            <!-- box_lows = [crypt_base+i*box_size for i in 0:num_boxes] -->
+            <apply><eq/>
+                <ci>box_lows</ci>
+                <apply>
+                    <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/newArray"/>
+                    <domainofapplication>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                            <cn>0</cn><cn>0</cn><cn>1</cn><ci>num_boxes</ci>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/string">i</csymbol>
+                        </apply>
+                    </domainofapplication>
+                    <apply><plus/>
+                        <ci>crypt_base</ci>
+                        <apply><times/>
+                            <ci>i</ci>
+                            <ci>box_size</ci>
+                        </apply>
+                    </apply>
+                </apply>
+            </apply>
+            <!-- box_highs = [crypt_base+(i+1)*box_size for i in 0:num_boxes] -->
+            <apply><eq/>
+                <ci>box_highs</ci>
+                <apply>
+                    <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/newArray"/>
+                    <domainofapplication>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                            <cn>0</cn><cn>0</cn><cn>1</cn><ci>num_boxes</ci>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/string">i</csymbol>
+                        </apply>
+                    </domainofapplication>
+                    <apply><plus/>
+                        <ci>crypt_base</ci>
+                        <apply><times/>
+                            <apply><plus/>
+                                <ci>i</ci>
+                                <cn>1</cn>
+                            </apply>
+                            <ci>box_size</ci>
+                        </apply>
+                    </apply>
+                </apply>
+            </apply>
+
+            <!-- num_divisions = locations.SHAPE[0] -->
+            <apply><eq/>
+                <ci>num_divisions</ci>
+                <apply>
+                    <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/view"/>
+                    <apply>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/accessor">SHAPE</csymbol>
+                        <ci>locations</ci>
+                    </apply>
+                    <apply>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                        <cn>0</cn><cn>0</cn><cn>0</cn>
+                    </apply>
+                </apply>
+            </apply>
+            
+            <!-- locations_ext = Stretch(locations, num_boxes, 0)     # Shape [num_boxes, num_divisions] -->
+            <apply><eq/>
+                <ci>locations_ext</ci>
+                <apply><ci>Stretch</ci>
+                    <ci>locations</ci>
+                    <ci>num_boxes</ci>
+                    <cn>0</cn>
+                </apply>
+            </apply>
+            <!-- box_lows_ext = Stretch(box_lows, num_divisions, 1)   # Shape [num_boxes, num_divisions] -->
+            <apply><eq/>
+                <ci>box_lows_ext</ci>
+                <apply><ci>Stretch</ci>
+                    <ci>box_lows</ci>
+                    <ci>num_divisions</ci>
+                    <cn>1</cn>
+                </apply>
+            </apply>
+            <!-- box_highs_ext = Stretch(box_highs, num_divisions, 1) # Shape [num_boxes, num_divisions] -->
+            <apply><eq/>
+                <ci>box_highs_ext</ci>
+                <apply><ci>Stretch</ci>
+                    <ci>box_highs</ci>
+                    <ci>num_divisions</ci>
+                    <cn>1</cn>
+                </apply>
+            </apply>
+            
+            <!-- in_box_pattern = map(InBox, locations_ext, box_lows_ext, box_highs_ext) -->
+            <apply><eq/>
+                <ci>in_box_pattern</ci>
+                <apply>
+                    <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/map"/>
+                    <ci>InBox</ci>
+                    <ci>locations_ext</ci>
+                    <ci>box_lows_ext</ci>
+                    <ci>box_highs_ext</ci>
+                </apply>
+            </apply>
+            <!-- freqs = Sum(in_box_pattern)                          # Shape [num_boxes] -->
+            <apply><eq/>
+                <ci>freqs</ci>
+                <apply><ci>std:RemoveDim</ci>
+                    <apply><ci>std:Sum</ci>
+                        <ci>in_box_pattern</ci>
+                    </apply>
+                    <cn>1</cn>
+                </apply>
+            </apply>
+            <!-- centres = map(lambda a, b: (a+b)/2, box_lows, box_highs) -->
+            <apply><eq/>
+                <ci>centres</ci>
+                <apply>
+                    <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/map"/>
+                    <lambda>
+                        <bvar><ci>a</ci></bvar>
+                        <bvar><ci>b</ci></bvar>
+                        <apply><divide/>
+                            <apply><plus/>
+                                <ci>a</ci>
+                                <ci>b</ci>
+                            </apply>
+                            <cn>2</cn>
+                        </apply>
+                    </lambda>
+                    <ci>box_lows</ci>
+                    <ci>box_highs</ci>
+                </apply>
+            </apply>
+            
+            <!-- assert(Sum(freqs) == num_divisions)                  # Sanity check -->
+            <apply>
+                <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/assert"/>
+                <apply><eq/>
+                    <apply><ci>std:RemoveDim</ci>
+                        <apply><ci>std:Sum</ci>
+                            <ci>freqs</ci>
+                        </apply>
+                        <cn>0</cn>
+                    </apply>
+                    <ci>num_divisions</ci>
+                </apply>
+            </apply>
+            
+            <!-- Also compute the average age at division in each box -->
+            <!-- ages_ext = Stretch(sim:divisions[1$3], num_boxes, 0) # Shape [num_boxes, num_divisions] -->
+            <apply><eq/>
+                <ci>ages_ext</ci>
+                <apply><ci>Stretch</ci>
+                    <apply>
+                        <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/view"/>
+                        <ci>sim:divisions</ci>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                            <cn>1</cn><cn>3</cn><cn>0</cn><cn>3</cn>
+                        </apply>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/tuple"/>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/null"/>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/null"/>
+                            <cn>1</cn>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/null"/>
+                        </apply>
+                    </apply>
+                    <ci>num_boxes</ci>
+                    <cn>0</cn>
+                </apply>
+            </apply>
+            <!-- summed_ages = Sum(ages_ext{in_box_pattern}, 1)[1$0]  # Shape [num_boxes] -->
+            <apply><eq/>
+                <ci>summed_ages</ci>
+                <apply><ci>std:RemoveDim</ci>
+                    <apply><ci>std:Sum</ci>
+                        <apply>
+                            <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/index"/>
+                            <ci>ages_ext</ci>
+                            <apply>
+                                <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/find"/>
+                                <ci>in_box_pattern</ci>
+                            </apply>
+                            <cn>1</cn> <!-- dim: num_divisions -->
+                            <cn>0</cn> <!-- shrink -->
+                            <cn>1</cn> <!-- pad -->
+                            <cn>0</cn> <!-- pad value -->
+                        </apply>
+                        <cn>1</cn>
+                    </apply>
+                    <cn>1</cn>
+                </apply>
+            </apply>
+            <!-- mean_ages = map(/, summed_ages, freqs)               # Shape [num_boxes] -->
+            <apply><eq/>
+                <ci>mean_ages</ci>
+                <apply>
+                    <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/map"/>
+                    <csymbol definitionURL="https://chaste.cs.ox.ac.uk/nss/protocol/wrap/2">divide</csymbol>
+                    <ci>summed_ages</ci>
+                    <ci>freqs</ci>
+                </apply>
+            </apply>
+        </apply>
+    </post-processing>
+    
+    <outputVariables>
+        <raw name="divisions" ref="sim:divisions" description="Raw division data"/>
+        <postprocessed name="freqs" units="dimensionless" description="Number of divisions per box"/>
+        <postprocessed name="centres" units="length-units" description="Box centres"/>
+        <postprocessed name="locations" units="length-units" description="Division heights along the crypt"/>
+        <postprocessed name="mean_ages" units="time-units" description="Mean cell age at division"/>
+    </outputVariables>
+    
+    <plots>
+        <plot>
+            <title>Division location "histogram"</title>
+            <x>centres</x>
+            <y>freqs</y>
+        </plot>
+        <plot>
+            <title>Age distribution "histogram"</title>
+            <x>centres</x>
+            <y>mean_ages</y>
+        </plot>
+    </plots>
+</protocol>

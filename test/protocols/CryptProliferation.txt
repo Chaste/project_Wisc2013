@@ -1,0 +1,98 @@
+# Core protocol for the Crypt Proliferation project, containing a single cell-based simulation and post-processing thereof
+
+# The 'ontology' to use for referencing model variables
+namespace cellbased = 'https://chaste.cs.ox.ac.uk/nss/cellbased/0.1#'
+
+inputs {
+    # The number of boxes to use in the location histogram
+    num_boxes = 10
+    
+    # The simulation end time (hours)
+    end_time = 50
+    
+    # The time at which the system is assumed to have reached steady state (hours).
+    # We ignore division events occurring before this point.
+    steady_state_time = 0
+    
+    # The height of the crypt (in nominal cell diameters)
+    crypt_height = 20
+}
+
+# Import the standard library of post-processing operations, using a relative path.
+# Functions from this library may then be used by prefixing their names with 'std:'.
+import std = '../../../FunctionalCuration/src/proto/library/BasicLibrary.xml'
+
+# Define some extra utility functions
+library {
+    def InBox(loc, boxLow, boxHigh) {
+        # Boxes need to be considered as half-open ranges, or you could have a division event
+        # assigned to two boxes.  This does mean that a division right on the top border of
+        # the crypt will cause issues, but this seems unlikely!
+        return loc >= boxLow && loc < boxHigh
+    }
+    
+    # Extend an array by copying it a given number of times along a newly added dimension
+    Stretch = lambda array, length, dim: [array for dim$i in 0:length]
+}
+
+# Units definitions for this protocol
+units {
+    hours = 3600 second
+    lengthUnits = 100 nano metre "Nominal cell diameters"
+}
+
+# The raw simulations to perform
+tasks {
+    # Just run the cell-based simulation as-is, setting a few parameters at the start
+    simulation sim = oneStep {
+        modifiers {
+            at start set cellbased:end_time = end_time
+            at start set cellbased:crypt_length = crypt_height
+            at start set cellbased:cells_up = MathML:ceiling(crypt_height * 2 / MathML:root(3))
+        }
+    }
+}
+
+post-processing {
+    # Check we have the expected results
+    assert sim:divisions.IS_ARRAY
+    assert sim:divisions.NUM_DIMS == 2
+    assert sim:divisions.SHAPE[0] > 0   # Each division event is a separate row
+    assert sim:divisions.SHAPE[1] == 4  # Fields time, x, y, age
+    
+    # Now do the real post-processing
+    locations = std:After(sim:divisions[1$2], sim:divisions[1$0], steady_state_time)
+    box_size = crypt_height / num_boxes  # y coordinates start at zero
+    box_lows = [i*box_size for i in 0:num_boxes]
+    box_highs = [(i+1)*box_size for i in 0:num_boxes]
+    centres = map(lambda a, b: (a+b)/2, box_lows, box_highs)
+    num_divisions = locations.SHAPE[0]
+    
+    # Figure out which histogram box each cell division occurred in
+    locations_ext = Stretch(locations, num_boxes, 0)          # Shape [num_boxes, num_divisions]
+    box_lows_ext = Stretch(box_lows, num_divisions, 1)        # Shape [num_boxes, num_divisions]
+    box_highs_ext = Stretch(box_highs, num_divisions, 1)      # Shape [num_boxes, num_divisions]
+    in_box_pattern = map(InBox, locations_ext, box_lows_ext, box_highs_ext)
+    
+    freqs = std:RemoveDim(std:Sum(in_box_pattern), 1)         # Shape [num_boxes]
+    assert std:RemoveDim(std:Sum(freqs), 0) == num_divisions  # Sanity check
+
+    # Also compute the average age at division in each box
+    ages = std:After(sim:divisions[1$3], sim:divisions[1$0], steady_state_time)
+    ages_ext = Stretch(ages, num_boxes, 0)                               # Shape [num_boxes, num_divisions]
+    summed_ages = std:Sum(map(@2:*, ages_ext, in_box_pattern), 1)[1$0]   # Shape [num_boxes]
+    mean_ages = map(@2:/, summed_ages, freqs)                            # Shape [num_boxes]
+}
+
+outputs {
+    divisions = sim:divisions     "Raw division data"                 # Shape [num_divisions, 4]
+    freqs     units dimensionless "Number of divisions per box"       # Shape [num_boxes]
+    centres   units lengthUnits   "Box centres"                       # Shape [num_boxes]
+    locations units lengthUnits   "Division heights along the crypt"  # Shape [num_divisions]
+    mean_ages units hours         "Mean cell age at division"         # Shape [num_boxes]
+}
+
+plots {
+    plot 'Cell division locations' { freqs against centres }
+    plot 'Cell age distribution' { mean_ages against centres }
+}
