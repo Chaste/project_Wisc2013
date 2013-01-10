@@ -69,15 +69,7 @@ public:
         p_protocol->SetModel(p_model);
 
         // Run protocol
-        try
-        {
-            p_protocol->Run();
-        }
-        catch (const Exception& e)
-        {
-            std::cout << "Error running protocol:" << e.GetMessage();
-        }
-        p_protocol->WriteToFile("outputs");
+        p_protocol->RunAndWrite("outputs");
     }
 
     void TestCompactSyntax() throw (Exception)
@@ -100,15 +92,7 @@ public:
         p_protocol->SetModel(p_model);
 
         // Run protocol
-        try
-        {
-            p_protocol->Run();
-        }
-        catch (const Exception& e)
-        {
-            std::cout << "Error running protocol:" << e.GetMessage();
-        }
-        p_protocol->WriteToFile("outputs");
+        p_protocol->RunAndWrite("outputs");
     }
 };
 

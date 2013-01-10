@@ -2,15 +2,15 @@
 
 import "CryptProliferation.txt" {
     num_boxes = 10
-    end_time = 50         # Hours
+    end_time = 100        # Hours
     steady_state_time = 0 # Hours
     crypt_height = 20
 }
 
 post-processing {
     # Check results are as expected (for CCM CONTACT_INHIBITION)
-    assert sim:divisions.SHAPE[0] == 239  # Each division event is a separate row
+    assert sim:divisions.SHAPE[0] == 218  # Each division event is a separate row
     assert sim:divisions.SHAPE[1] == 4    # Fields time, x, y, age
-    assert sim:divisions[0][0] == 0.85
-    assert sim:divisions[-1][2] == 0.00816474
+    assert sim:divisions[0][0] == 0.883333
+    assert sim:divisions[-1][2] == 0.000535596
 }

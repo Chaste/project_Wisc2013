@@ -14,9 +14,9 @@ import sys
 if len(sys.argv) > 1:
     os.chdir(sys.argv[1])
 
-models = ['UniformWnt', 'VariableWnt', 'StochasticGenerationBased', 'ContactInhibition']
-model_names = ['Uniform Wnt', 'Variable Wnt', 'Stochastic Generation-based', 'Contact Inhibition']
-plots = ['Cell_age_distribution', 'Cell_division_locations']
+models = ['UniformWnt', 'VariableWnt', 'StochasticGenerationBased']#, 'ContactInhibition']
+model_names = ['Uniform Wnt', 'Variable Wnt', 'Stochastic Generation-based']#, 'Contact Inhibition']
+plots = ['Raw_cell_division_locations', 'Cell_division_locations']
 
 copy_templates = {'model%d/%s.eps': '%s-%s_auto.eps',
                   'model%d/outputs_%s_gnuplot_data.csv': '%s-%s_data.csv'}
@@ -32,25 +32,15 @@ set autoscale
 set key outside invert title "Crypt height"
 set datafile separator ","
 plot "%(csv)s" using 1:2 title "10" with linespoints pointtype 7,\
-     "%(csv)s" using 1:3 title "12" with linespoints pointtype 7,\
-     "%(csv)s" using 1:4 title "14" with linespoints pointtype 7,\
-     "%(csv)s" using 1:5 title "16" with linespoints pointtype 7,\
-     "%(csv)s" using 1:6 title "18" with linespoints pointtype 7,\
-     "%(csv)s" using 1:7 title "20" with linespoints pointtype 7,\
-     "%(csv)s" using 1:8 title "22" with linespoints pointtype 7,\
-     "%(csv)s" using 1:9 title "24" with linespoints pointtype 7,\
-     "%(csv)s" using 1:10 title "26" with linespoints pointtype 7,\
-     "%(csv)s" using 1:11 title "28" with linespoints pointtype 7,\
-     "%(csv)s" using 1:12 title "30" with linespoints pointtype 7
+     "%(csv)s" using 1:3 title "15" with linespoints pointtype 7,\
+     "%(csv)s" using 1:4 title "20" with linespoints pointtype 7,\
+     "%(csv)s" using 1:5 title "25" with linespoints pointtype 7,\
+     "%(csv)s" using 1:6 title "30" with linespoints pointtype 7
 """
 
-#plot_titles = ['Age distribution', 'Cell division locations']
-plot_ylabels = ['Mean cell age at division (hours)', 'Number of divisions per box']
+plot_ylabels = ['Number of divisions per box', 'Percentage of divisions per box']
 def plot_title(plot_index, model_index):
-    if plot_index == 0:
-        return 'Cell age distribution'
-    else:
-        return '%c) %s' % ('abcd'[model_index], model_names[model_index])
+    return '%c) %s' % ('abcd'[model_index], model_names[model_index])
 
 for i, model in enumerate(models):
     for j, plot in enumerate(plots):

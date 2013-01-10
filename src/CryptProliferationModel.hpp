@@ -50,6 +50,8 @@ class CryptProliferationModel : public AbstractSystemWithOutputs
 public:
     /**
      * This class can represent several variant models; this type is used to select between them.
+     *
+     * \todo Provide human readable names for each type.
      */
     enum ModelType
     {

@@ -80,6 +80,7 @@ CryptProliferationModel::CryptProliferationModel(ModelType modelType,
     default_model_params["cells_up"] = CV(24);
     default_model_params["thickness_of_ghost_layer"] = CV(1);
     default_model_params["end_time"] = CV(50);
+    default_model_params["dt_divisor"] = CV(120);
     mpModelParameters.reset(new RestrictedEnvironment(default_model_params));
     // Set up what outputs are available
     mOutputNames.push_back("divisions");
@@ -215,8 +216,8 @@ void CryptProliferationModel::SolveModel(double endPoint)
     FileFinder test_output_root("", RelativeTo::ChasteTestOutput);
     simulator.SetOutputDirectory(mOutputFolder.GetRelativePath(test_output_root));
     simulator.SetOutputDivisionLocations(true); // The output we're really interested in
-    simulator.SetDt(1.0/120.0);
-    simulator.SetSamplingTimestepMultiple(120);
+    simulator.SetDt(1.0/PARAM(dt_divisor));
+    simulator.SetSamplingTimestepMultiple(PARAM(dt_divisor));
     simulator.SetEndTime(PARAM(end_time));
 
     // The simulation depends on the Wnt concentration

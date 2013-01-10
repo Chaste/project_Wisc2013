@@ -57,21 +57,86 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
 {
 public:
+    /*
+     * This test runs the inner CryptProliferation protocol on each model, for the default crypt
+     * height of 20 nominal cell diameters.  The raw results from the underlying cell-based Chaste
+     * simulation can then be used with the Chaste visualisation tools to produce the crypt schematic
+     * figure in the paper (Figure N).
+     */
+    void TestGenerateSteadyStatePlots() throw (Exception)
+    {
+
+        OutputFileHandler handler("CryptProliferationSteadyState");
+        FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
+        ProtocolFileFinder proto_file("protocols/CryptProliferation.txt", this_test);
+
+        /* Allow the different models to be run simultaneously, if multiple processes are available. */
+        PetscTools::IsolateProcesses(true);
+
+        /* Loop over available models. */
+        std::vector<CryptProliferationModel::ModelType> model_types = boost::assign::list_of
+                (CryptProliferationModel::UNIFORM_WNT)
+                (CryptProliferationModel::VARIABLE_WNT)
+                (CryptProliferationModel::STOCHASTIC_GEN_BASED);
+
+        for (unsigned i=0; i<model_types.size(); i++)
+        {
+            if (PetscTools::IsParallel() && i % PetscTools::GetNumProcs() != PetscTools::GetMyRank())
+            {
+                // Let another process run this model
+                continue;
+            }
+
+            CryptProliferationModel::ModelType model_type = model_types[i];
+            // Where to write output for this model
+            std::stringstream sub_folder_name;
+            sub_folder_name << "model" << model_type;
+            OutputFileHandler sub_handler(handler.FindFile(sub_folder_name.str()));
+
+            // Load the model
+            boost::shared_ptr<AbstractSystemWithOutputs> p_model(
+                    new CryptProliferationModel(model_type,
+                                                sub_handler.FindFile("raw_results")));
+
+            // Load the protocol
+            ProtocolParser parser;
+            ProtocolPtr p_protocol = parser.ParseFile(proto_file);
+            p_protocol->SetOutputFolder(sub_handler);
+            p_protocol->SetModel(p_model);
+
+            // Run protocol
+            try
+            {
+                p_protocol->RunAndWrite("outputs");
+            }
+            catch (const Exception& r_error)
+            {
+                std::cerr << r_error.GetMessage() << std::endl;
+                TS_FAIL("Error running " + sub_folder_name.str());
+            }
+        }
+
+        /* Stop isolating processes, to avoid problems in the next test. */
+        PetscTools::IsolateProcesses(false);
+    }
+
+    /*
+     * This test runs the main parameter sweep protocol on each of our three variant models.
+     */
     void TestParameterSweep() throw (Exception)
     {
         OutputFileHandler handler("CryptProliferationSweep");
         FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
         ProtocolFileFinder proto_file("protocols/CryptProliferationSweep.txt", this_test);
 
-        // Allow the different models to be run simultaneously, if multiple processes are available
+        /* Allow the different models to be run simultaneously, if multiple processes are available. */
         PetscTools::IsolateProcesses(true);
 
-        // Loop over available models
+        /* Loop over available models. */
         std::vector<CryptProliferationModel::ModelType> model_types = boost::assign::list_of
                 (CryptProliferationModel::UNIFORM_WNT)
                 (CryptProliferationModel::VARIABLE_WNT)
-                (CryptProliferationModel::STOCHASTIC_GEN_BASED)
-                (CryptProliferationModel::CONTACT_INHIBITION);
+                (CryptProliferationModel::STOCHASTIC_GEN_BASED);
 
         for (unsigned i=0; i<model_types.size(); i++)
         {
@@ -118,7 +183,7 @@ public:
             FileFinder plot_script("CopyPlots.py", this_test);
             EXPECT0(system, (plot_script.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath()).c_str());
         }
-   }
+    }
 };
 
 #endif // TESTCRYPTPROLIFERATIONLITERATEPAPER_HPP_
