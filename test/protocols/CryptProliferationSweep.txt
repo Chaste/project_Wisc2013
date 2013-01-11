@@ -1,60 +1,40 @@
 # A simple parameter sweep over the crypt proliferation protocol, varying crypt height
 
 inputs {
-    # The number of boxes to use in the location histogram
-    num_boxes = 10
-    
-    # The simulation end time (hours)
-    end_time = 300
-    
-    # The time at which the system is assumed to have reached steady state (hours).
-    # We ignore division events occurring before this point.
-    steady_state_time = 100
-    
-    # The crypt heights to sweep over
-    heights = [10, 15, 20, 25, 30]
+    num_boxes = 10                  # The number of boxes to use in the location histogram
+    heights = [10, 15, 20, 25, 30]  # The crypt heights to sweep over
+    end_time = 300                  # The simulation end time (hours)
+    steady_state_time = 100         # Ignore division events occurring before this point.
 }
-
 import std = '../../../FunctionalCuration/src/proto/library/BasicLibrary.xml'
-
-units {
-    percent = dimensionless "%"
-}
-
+units { percent = dimensionless "%" }
 tasks {
     simulation sweep = nested {
         range crypt_height units lengthUnits vector heights
         nests protocol 'CryptProliferation.txt' {
-            # Pass through this protocol's parameters
-            num_boxes = num_boxes
-            end_time = end_time
-            steady_state_time = 0
-            # Set the crypt height for this loop iteration
-            crypt_height = crypt_height
-
-            # Which outputs are of interest?
-            # All have shape [num_boxes] for a single protocol run
+            num_boxes = num_boxes                  # Pass through
+            end_time = end_time                    # Pass through
+            steady_state_time = steady_state_time  # Pass through
+            crypt_height = crypt_height  # Set crypt height for this iteration
+            # Outputs of interest, all have shape [num_boxes] for a single protocol run
             select output freqs
             select output centres
         }? # Turn on debug tracing, so the outputs of each run are saved separately
     }
 }
-
 post-processing {
-    # Compute the box centres as percentage of crypt height, for plotting all crypts on the same axes
+    # Compute box centres as % of crypt height, for plotting all crypts on the same axes
     centres_percent = [(100/num_boxes)*(box_num+0.5)  for box_num in 0:num_boxes]
     # Normalise division counts for easier comparison
     total_divisions = std:Stretch(std:Sum(sweep:freqs, 1), num_boxes, 1)
     norm_freqs = map(lambda n, tot: n/tot*100, sweep:freqs, total_divisions)
 }
-
 outputs {
     freqs = sweep:freqs     units dimensionless "Number of divisions per box"
     norm_freqs              units percent       "Percentage of divisions per box"
     centres = sweep:centres units lengthUnits   "Box centres"
     centres_percent         units percent       "Percentage height up the crypt"
 }
-
 plots {
     plot 'Cell division locations' { norm_freqs against centres_percent }
     plot 'Raw cell division locations' { freqs against centres_percent }
