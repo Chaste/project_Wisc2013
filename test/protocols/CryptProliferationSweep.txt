@@ -3,8 +3,6 @@
 inputs {
     num_boxes = 10                  # The number of boxes to use in the location histogram
     heights = [10, 15, 20, 25, 30]  # The crypt heights to sweep over
-    end_time = 300                  # The simulation end time (hours)
-    steady_state_time = 100         # Ignore division events occurring before this point.
 }
 import std = '../../../FunctionalCuration/src/proto/library/BasicLibrary.xml'
 units { percent = dimensionless "%" }
@@ -12,13 +10,10 @@ tasks {
     simulation sweep = nested {
         range crypt_height units lengthUnits vector heights
         nests protocol 'CryptProliferation.txt' {
-            num_boxes = num_boxes                  # Pass through
-            end_time = end_time                    # Pass through
-            steady_state_time = steady_state_time  # Pass through
-            crypt_height = crypt_height  # Set crypt height for this iteration
-            # Outputs of interest, all have shape [num_boxes] for a single protocol run
+            num_boxes = num_boxes         # Pass through
+            crypt_height = crypt_height   # Set crypt height for this iteration
+            # Output of interest, with shape [num_boxes] for a single protocol run
             select output freqs
-            select output centres
         }? # Turn on debug tracing, so the outputs of each run are saved separately
     }
 }
@@ -30,12 +25,10 @@ post-processing {
     norm_freqs = map(lambda n, tot: n/tot*100, sweep:freqs, total_divisions)
 }
 outputs {
-    freqs = sweep:freqs     units dimensionless "Number of divisions per box"
-    norm_freqs              units percent       "Percentage of divisions per box"
-    centres = sweep:centres units lengthUnits   "Box centres"
-    centres_percent         units percent       "Percentage height up the crypt"
+    freqs = sweep:freqs   units dimensionless  "Number of divisions per box"
+    norm_freqs            units percent        "Percentage of divisions per box"
+    centres_percent       units percent        "Percentage height up the crypt"
 }
 plots {
     plot 'Cell division locations' { norm_freqs against centres_percent }
-    plot 'Raw cell division locations' { freqs against centres_percent }
 }

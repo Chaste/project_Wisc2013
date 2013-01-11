@@ -16,7 +16,7 @@ if len(sys.argv) > 1:
 
 models = ['UniformWnt', 'VariableWnt', 'StochasticGenerationBased']#, 'ContactInhibition']
 model_names = ['Uniform Wnt', 'Variable Wnt', 'Stochastic Generation-based']#, 'Contact Inhibition']
-plots = ['Raw_cell_division_locations', 'Cell_division_locations']
+plots = ['Cell_division_locations']#, 'Raw_cell_division_locations']
 
 copy_templates = {'model%d/%s.eps': '%s-%s_auto.eps',
                   'model%d/outputs_%s_gnuplot_data.csv': '%s-%s_data.csv'}

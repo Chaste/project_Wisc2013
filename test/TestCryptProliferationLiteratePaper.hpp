@@ -42,11 +42,13 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sstream>
 #include <cstdlib> // For system()
 #include <boost/assign/list_of.hpp>
+#include <boost/make_shared.hpp>
 
 #include "CryptProliferationModel.hpp"
 #include "Protocol.hpp"
 #include "ProtocolParser.hpp"
 #include "ProtocolFileFinder.hpp"
+#include "ValueExpression.hpp"
 
 #include "FileFinder.hpp"
 #include "OutputFileHandler.hpp"
@@ -101,6 +103,8 @@ public:
             // Load the protocol
             ProtocolParser parser;
             ProtocolPtr p_protocol = parser.ParseFile(proto_file);
+            p_protocol->SetInput("end_time", boost::make_shared<ValueExpression>(boost::make_shared<SimpleValue>(100.0)));
+            p_protocol->SetInput("steady_state_time", boost::make_shared<ValueExpression>(boost::make_shared<SimpleValue>(0.0)));
             p_protocol->SetOutputFolder(sub_handler);
             p_protocol->SetModel(p_model);
 

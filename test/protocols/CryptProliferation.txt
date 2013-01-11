@@ -5,18 +5,16 @@ namespace cellbased = 'https://chaste.cs.ox.ac.uk/nss/cellbased/0.1#'
 inputs {    # Protocol inputs
     num_boxes = 10       # The number of boxes to use in the location histogram
     crypt_height = 10    # The height of the crypt (in nominal cell diameters)
-    end_time = 100       # The simulation end time (hours)
+    end_time = 300       # The simulation end time (hours)
     # The time at which the system is assumed to have reached quasi steady state (hours).
     # We ignore division events occurring before this point.
-    steady_state_time = 0
+    steady_state_time = 100
 }
 # Import the standard library of post-processing operations, using a relative path.
 # Functions from this library may then be used by prefixing their names with 'std:'.
 import std = '../../../FunctionalCuration/src/proto/library/BasicLibrary.xml'
 library {   # Define some extra utility functions
-    def InBox(loc, boxLow, boxHigh) {
-        return loc >= boxLow && loc < boxHigh
-    }
+    def InBox(loc, boxLow, boxHigh) { return loc >= boxLow && loc < boxHigh }
     # Extend an array by copying it a given number of times along a newly added dimension
     Stretch = lambda array, length, dim: [array for dim$i in 0:length]
 }
@@ -53,9 +51,8 @@ post-processing {
 }
 outputs {
     divisions = sim:divisions     "Raw division data"            # Shape [num_divisions, 4]
-    freqs     units dimensionless "Number of divisions per box"       # Shape [num_boxes]
-    centres   units lengthUnits   "Box centres"                       # Shape [num_boxes]
-    locations units lengthUnits   "Division heights along the crypt"  # Shape [num_divisions]
+    freqs     units dimensionless "Number of divisions per box"  # Shape [num_boxes]
+    centres   units lengthUnits   "Box centres"                  # Shape [num_boxes]
 }
 plots {
     plot 'Cell division locations' { freqs against centres }
