@@ -38,7 +38,7 @@ plot "%(csv)s" using 1:2 title "10" with linespoints pointtype 7,\
      "%(csv)s" using 1:6 title "30" with linespoints pointtype 7
 """
 
-plot_ylabels = ['Number of divisions per box', 'Percentage of divisions per box']
+plot_ylabels = ['Percentage of divisions per box (%)']#, 'Number of divisions per box']
 def plot_title(plot_index, model_index):
     return '%c) %s' % ('abcd'[model_index], model_names[model_index])
 
