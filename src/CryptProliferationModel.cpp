@@ -35,6 +35,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "CryptProliferationModel.hpp"
 
+#include <cassert>
 #include <boost/foreach.hpp>
 
 // Functional curation includes
@@ -60,6 +61,31 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SloughingCellKiller.hpp"
 #include "WntConcentration.hpp"
 #include "CryptSimulationBoundaryCondition.hpp"
+
+
+std::string CryptProliferationModel::GetModelName(ModelType modelType)
+{
+    std::string name;
+    switch (modelType)
+    {
+    case UNIFORM_WNT:
+        name = "Uniform Wnt";
+        break;
+    case VARIABLE_WNT:
+        name = "Variable Wnt";
+        break;
+    case STOCHASTIC_GEN_BASED:
+        name = "Stochastic Generation-based";
+        break;
+    case CONTACT_INHIBITION:
+        name = "Contact Inhibition";
+        break;
+    default:
+        NEVER_REACHED;
+    }
+    return name;
+}
+
 
 /**
  * Create a new model instance.
@@ -254,4 +280,3 @@ void CryptProliferationModel::SolveModel(double endPoint)
     RandomNumberGenerator::Destroy();
     SimulationTime::Destroy();
 }
-

@@ -18,8 +18,8 @@ models = ['UniformWnt', 'VariableWnt', 'StochasticGenerationBased']#, 'ContactIn
 model_names = ['Uniform Wnt', 'Variable Wnt', 'Stochastic Generation-based']#, 'Contact Inhibition']
 plots = ['Cell_division_locations']#, 'Raw_cell_division_locations']
 
-copy_templates = {'model%d/%s.eps': '%s-%s_auto.eps',
-                  'model%d/outputs_%s_gnuplot_data.csv': '%s-%s_data.csv'}
+copy_templates = {'%s/%s.eps': '%s-%s_auto.eps',
+                  '%s/outputs_%s_gnuplot_data.csv': '%s-%s_data.csv'}
 
 plot_template = r"""# Gnuplot script for crypt cell division study
 set terminal postscript eps enhanced size 4,3 font 16
@@ -45,7 +45,7 @@ def plot_title(plot_index, model_index):
 for i, model in enumerate(models):
     for j, plot in enumerate(plots):
         for src_tpl, dest_tpl in copy_templates.items():
-            src = src_tpl % (i, plot)
+            src = src_tpl % (model_names[i].replace(' ', '_'), plot)
             dest = dest_tpl % (model, plot)
             os.system('cp "%s" "%s"' % (src, dest))
         # Write a specialised gnuplot script, rather than the FC default, and run it

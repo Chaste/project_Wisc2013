@@ -50,8 +50,6 @@ class CryptProliferationModel : public AbstractSystemWithOutputs
 public:
     /**
      * This class can represent several variant models; this type is used to select between them.
-     *
-     * \todo Provide human readable names for each type.
      */
     enum ModelType
     {
@@ -60,6 +58,13 @@ public:
         STOCHASTIC_GEN_BASED, ///< Use StochasticDurationGenerationBasedCellCycleModel
         CONTACT_INHIBITION    ///< Use ContactInhibitionGenerationBasedCellCycleModel
     };
+
+    /**
+     * Get a human readable name for the given model type.
+     * @param modelType  the model type
+     * @return  its name
+     */
+    static std::string GetModelName(ModelType modelType);
 
     /**
      * Create a new model instance.

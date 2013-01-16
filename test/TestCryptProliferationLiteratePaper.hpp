@@ -36,6 +36,11 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TESTCRYPTPROLIFERATIONLITERATEPAPER_HPP_
 #define TESTCRYPTPROLIFERATIONLITERATEPAPER_HPP_
 
+/* = Connecting models to data in multiscale multicellular tissue simulations =
+ *
+ * This file runs the main protocols for the above paper to be submitted to WISC2013.
+ */
+
 #include <cxxtest/TestSuite.h>
 
 #include <vector>
@@ -43,6 +48,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstdlib> // For system()
 #include <boost/assign/list_of.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/foreach.hpp>
 
 #include "CryptProliferationModel.hpp"
 #include "Protocol.hpp"
@@ -58,6 +64,87 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
 {
+    /*
+     * This method runs the given protocol on three different cell-based Chaste models,
+     * writing protocol outputs to the given folder.
+     *
+     * Optionally some of the protocol inputs may be overridden by providing a non-empty map
+     * as the third argument.
+     */
+    void RunProtocol(const std::string& rProtocolName, const std::string& rOutputFolderName,
+                     const std::map<std::string, double>& rProtocolInputs)
+    {
+        OutputFileHandler handler(rOutputFolderName);
+        FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
+        ProtocolFileFinder proto_file("protocols/" + rProtocolName + ".txt", this_test);
+
+        /* Allow the different models to be run simultaneously, if multiple processes are available. */
+        PetscTools::IsolateProcesses(true);
+
+        /* Loop over available models. */
+        std::vector<CryptProliferationModel::ModelType> model_types = boost::assign::list_of
+                (CryptProliferationModel::UNIFORM_WNT)
+                (CryptProliferationModel::VARIABLE_WNT)
+                (CryptProliferationModel::STOCHASTIC_GEN_BASED);
+
+        for (unsigned i=0; i<model_types.size(); i++)
+        {
+            if (PetscTools::IsParallel() && i % PetscTools::GetNumProcs() != PetscTools::GetMyRank())
+            {
+                // Let another process run this model
+                continue;
+            }
+
+            CryptProliferationModel::ModelType model_type = model_types[i];
+            std::string model_name = CryptProliferationModel::GetModelName(model_type);
+            // Where to write output for this model
+            std::string sub_folder_name = model_name;
+            FileFinder::ReplaceSpacesWithUnderscores(sub_folder_name);
+            OutputFileHandler sub_handler(handler.FindFile(sub_folder_name));
+
+            // Load the model
+            boost::shared_ptr<AbstractSystemWithOutputs> p_model(
+                    new CryptProliferationModel(model_type,
+                                                sub_handler.FindFile("raw_results")));
+
+            // Load the protocol
+            ProtocolParser parser;
+            ProtocolPtr p_protocol = parser.ParseFile(proto_file);
+            p_protocol->SetOutputFolder(sub_handler);
+            p_protocol->SetModel(p_model);
+
+            // Override inputs if requested
+            typedef std::pair<std::string, double> StringDoublePair;
+            BOOST_FOREACH(StringDoublePair input, rProtocolInputs)
+            {
+                p_protocol->SetInput(input.first, boost::make_shared<ValueExpression>(boost::make_shared<SimpleValue>(input.second)));
+            }
+
+            // Adjust plot titles to be more useful for inclusion in the paper
+            // They should look like "a) Model Name"
+            std::string letter(1, 'a' + model_type);
+            std::string plot_title = letter + ") " + model_name;
+            BOOST_FOREACH(PlotSpecificationPtr p_plot_spec, p_protocol->rGetPlotSpecifications())
+            {
+                p_plot_spec->SetDisplayTitle(plot_title);
+            }
+
+            // Run protocol
+            try
+            {
+                p_protocol->RunAndWrite("outputs");
+            }
+            catch (const Exception& r_error)
+            {
+                std::cerr << r_error.GetMessage() << std::endl;
+                TS_FAIL("Error running " + model_name);
+            }
+        }
+
+        /* Stop isolating processes, to avoid problems running the next protocol. */
+        PetscTools::IsolateProcesses(false);
+    }
+
 public:
     /*
      * This test runs the inner CryptProliferation protocol on each model, for the default crypt
@@ -67,61 +154,10 @@ public:
      */
     void TestGenerateSteadyStatePlots() throw (Exception)
     {
-
-        OutputFileHandler handler("CryptProliferationSteadyState");
-        FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
-        ProtocolFileFinder proto_file("protocols/CryptProliferation.txt", this_test);
-
-        /* Allow the different models to be run simultaneously, if multiple processes are available. */
-        PetscTools::IsolateProcesses(true);
-
-        /* Loop over available models. */
-        std::vector<CryptProliferationModel::ModelType> model_types = boost::assign::list_of
-                (CryptProliferationModel::UNIFORM_WNT)
-                (CryptProliferationModel::VARIABLE_WNT)
-                (CryptProliferationModel::STOCHASTIC_GEN_BASED);
-
-        for (unsigned i=0; i<model_types.size(); i++)
-        {
-            if (PetscTools::IsParallel() && i % PetscTools::GetNumProcs() != PetscTools::GetMyRank())
-            {
-                // Let another process run this model
-                continue;
-            }
-
-            CryptProliferationModel::ModelType model_type = model_types[i];
-            // Where to write output for this model
-            std::stringstream sub_folder_name;
-            sub_folder_name << "model" << model_type;
-            OutputFileHandler sub_handler(handler.FindFile(sub_folder_name.str()));
-
-            // Load the model
-            boost::shared_ptr<AbstractSystemWithOutputs> p_model(
-                    new CryptProliferationModel(model_type,
-                                                sub_handler.FindFile("raw_results")));
-
-            // Load the protocol
-            ProtocolParser parser;
-            ProtocolPtr p_protocol = parser.ParseFile(proto_file);
-            p_protocol->SetInput("end_time", boost::make_shared<ValueExpression>(boost::make_shared<SimpleValue>(100.0)));
-            p_protocol->SetInput("steady_state_time", boost::make_shared<ValueExpression>(boost::make_shared<SimpleValue>(0.0)));
-            p_protocol->SetOutputFolder(sub_handler);
-            p_protocol->SetModel(p_model);
-
-            // Run protocol
-            try
-            {
-                p_protocol->RunAndWrite("outputs");
-            }
-            catch (const Exception& r_error)
-            {
-                std::cerr << r_error.GetMessage() << std::endl;
-                TS_FAIL("Error running " + sub_folder_name.str());
-            }
-        }
-
-        /* Stop isolating processes, to avoid problems in the next test. */
-        PetscTools::IsolateProcesses(false);
+        std::map<std::string, double> protocol_inputs;
+        protocol_inputs["end_time"] = 100.0;
+        protocol_inputs["steady_state_time"] = 0.0;
+        RunProtocol("CryptProliferation", "CryptProliferationSteadyState", protocol_inputs);
     }
 
     /*
@@ -129,63 +165,17 @@ public:
      */
     void TestParameterSweep() throw (Exception)
     {
-        OutputFileHandler handler("CryptProliferationSweep");
-        FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
-        ProtocolFileFinder proto_file("protocols/CryptProliferationSweep.txt", this_test);
-
-        /* Allow the different models to be run simultaneously, if multiple processes are available. */
-        PetscTools::IsolateProcesses(true);
-
-        /* Loop over available models. */
-        std::vector<CryptProliferationModel::ModelType> model_types = boost::assign::list_of
-                (CryptProliferationModel::UNIFORM_WNT)
-                (CryptProliferationModel::VARIABLE_WNT)
-                (CryptProliferationModel::STOCHASTIC_GEN_BASED);
-
-        for (unsigned i=0; i<model_types.size(); i++)
-        {
-            if (PetscTools::IsParallel() && i % PetscTools::GetNumProcs() != PetscTools::GetMyRank())
-            {
-                // Let another process run this model
-                continue;
-            }
-
-            CryptProliferationModel::ModelType model_type = model_types[i];
-            // Where to write output for this model
-            std::stringstream sub_folder_name;
-            sub_folder_name << "model" << model_type;
-            OutputFileHandler sub_handler(handler.FindFile(sub_folder_name.str()));
-
-            // Load the model
-            boost::shared_ptr<AbstractSystemWithOutputs> p_model(
-                    new CryptProliferationModel(model_type,
-                                                sub_handler.FindFile("raw_results")));
-
-            // Load the protocol
-            ProtocolParser parser;
-            ProtocolPtr p_protocol = parser.ParseFile(proto_file);
-            p_protocol->SetOutputFolder(sub_handler);
-            p_protocol->SetModel(p_model);
-
-            // Run protocol
-            try
-            {
-                p_protocol->RunAndWrite("outputs");
-            }
-            catch (const Exception& r_error)
-            {
-                std::cerr << r_error.GetMessage() << std::endl;
-                TS_FAIL("Error running " + sub_folder_name.str());
-            }
-        }
+        std::map<std::string, double> protocol_inputs;
+        RunProtocol("CryptProliferationSweep", "CryptProliferationSweep", protocol_inputs);
 
         // Now generate versions of the result plots that are labelled for publication
-        PetscTools::IsolateProcesses(false);
         PetscTools::Barrier();
         if (PetscTools::AmMaster())
         {
+            FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
             FileFinder plot_script("CopyPlots.py", this_test);
-            EXPECT0(system, (plot_script.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath()).c_str());
+            FileFinder output_dir("CryptProliferationSweep", RelativeTo::ChasteTestOutput);
+            EXPECT0(system, (plot_script.GetAbsolutePath() + " " + output_dir.GetAbsolutePath()).c_str());
         }
     }
 };
