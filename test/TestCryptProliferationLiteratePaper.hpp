@@ -164,9 +164,9 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
 public:
     /*
      * This test runs the inner CryptProliferation protocol on each model, for the default crypt
-     * height of 10 nominal cell diameters.  The raw results from the underlying cell-based Chaste
+     * height of 20 nominal cell diameters.  The raw results from the underlying cell-based Chaste
      * simulation can then be used with the Chaste visualisation tools to produce the crypt schematic
-     * figure in the paper (Figure N).
+     * figure in the paper (Figure 1).
      */
     void TestGenerateSteadyStatePlots() throw (Exception)
     {
