@@ -70,9 +70,14 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
      *
      * Optionally some of the protocol inputs may be overridden by providing a non-empty map
      * as the third argument.
+     *
+     * If the copyPlots argument is given as true, then all automatically generated results
+     * plots in the sub-folder for each model will be copied to the parent results folder,
+     * with names that include the model name, for easy inclusion in the paper.
      */
     void RunProtocol(const std::string& rProtocolName, const std::string& rOutputFolderName,
-                     const std::map<std::string, double>& rProtocolInputs)
+                     const std::map<std::string, double>& rProtocolInputs,
+                     bool copyPlots=false)
     {
         OutputFileHandler handler(rOutputFolderName);
         FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
@@ -127,12 +132,23 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
             BOOST_FOREACH(PlotSpecificationPtr p_plot_spec, p_protocol->rGetPlotSpecifications())
             {
                 p_plot_spec->SetDisplayTitle(plot_title);
+                // Also change the plot page size
+                p_plot_spec->SetGnuplotTerminal("postscript eps enhanced size 4,3 font 16");
             }
 
             // Run protocol
             try
             {
                 p_protocol->RunAndWrite("outputs");
+                if (copyPlots)
+                {
+                    FileFinder model_output_folder = sub_handler.FindFile("");
+                    BOOST_FOREACH(FileFinder graph, model_output_folder.FindMatches("*.eps"))
+                    {
+                        FileFinder dest = handler.FindFile(sub_folder_name + "-" + graph.GetLeafName());
+                        graph.CopyTo(dest);
+                    }
+                }
             }
             catch (const Exception& r_error)
             {
@@ -148,7 +164,7 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
 public:
     /*
      * This test runs the inner CryptProliferation protocol on each model, for the default crypt
-     * height of 20 nominal cell diameters.  The raw results from the underlying cell-based Chaste
+     * height of 10 nominal cell diameters.  The raw results from the underlying cell-based Chaste
      * simulation can then be used with the Chaste visualisation tools to produce the crypt schematic
      * figure in the paper (Figure N).
      */
@@ -166,17 +182,7 @@ public:
     void TestParameterSweep() throw (Exception)
     {
         std::map<std::string, double> protocol_inputs;
-        RunProtocol("CryptProliferationSweep", "CryptProliferationSweep", protocol_inputs);
-
-        // Now generate versions of the result plots that are labelled for publication
-        PetscTools::Barrier();
-        if (PetscTools::AmMaster())
-        {
-            FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
-            FileFinder plot_script("CopyPlots.py", this_test);
-            FileFinder output_dir("CryptProliferationSweep", RelativeTo::ChasteTestOutput);
-            EXPECT0(system, (plot_script.GetAbsolutePath() + " " + output_dir.GetAbsolutePath()).c_str());
-        }
+        RunProtocol("CryptProliferationSweep", "CryptProliferationSweep", protocol_inputs, true);
     }
 };
 

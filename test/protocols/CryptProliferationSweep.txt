@@ -28,7 +28,8 @@ outputs {
     freqs = sweep:freqs   units dimensionless  "Number of divisions per box"
     norm_freqs            units percent        "Percentage of divisions per box"
     centres_percent       units percent        "Percentage height up the crypt"
+    heights               units dimensionless  "Crypt height"  # Note: fake units for display
 }
 plots {
-    plot 'Cell division locations' { norm_freqs against centres_percent }
+    plot 'Cell division locations' { norm_freqs against centres_percent key heights }
 }
