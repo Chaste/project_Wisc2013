@@ -33,39 +33,74 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+/* Additional files to include on the auto-generated wiki page:
+ *
+ * Requires: protocols/CryptProliferation.txt
+ * Requires: protocols/CryptProliferationSweep.txt
+ */
+
 #ifndef TESTCRYPTPROLIFERATIONLITERATEPAPER_HPP_
 #define TESTCRYPTPROLIFERATIONLITERATEPAPER_HPP_
 
 /* = Connecting models to data in multiscale multicellular tissue simulations =
  *
- * This file runs the main protocols for the above paper to be submitted to WISC2013.
+ * This Chaste test file runs the main protocols for the above paper to be submitted to WISC2013.
+ *
+ * == How to run this code ==
+ *
+ * For performance, it is recommended to build Chaste using the `GccOptNative` build type when using
+ * the Functional Curation extension project, on which this code is built.  You can run the code shown
+ * below using the commands:
+ * {{{
+ * cd path_to_Chaste
+ * scons chaste_libs=1 build=GccOptNative projects/Wisc2013/test/TestCryptProliferationLiteratePaper.hpp
+ * }}}
+ * A clean build of Chaste takes a considerable amount of time.  If you have multiple cores available
+ * then the process can be sped up greatly using the '-j' flag to scons, e.g.
+ * {{{
+ * scons -j4 chaste_libs=1 build=GccOptNative projects/Wisc2013/test/TestCryptProliferationLiteratePaper.hpp
+ * }}}
+ * to build on 4 cores.  You can additionally run the code itself in parallel, in order to run the parameter
+ * sweep on all of the 3 models simultaneously, using the `GccOptNative_3` build type, e.g.
+ * {{{
+ * scons -j4 chaste_libs=1 build=GccOptNative_3 projects/Wisc2013/test/TestCryptProliferationLiteratePaper.hpp
+ * }}}
  */
 
+/* == The code itself ==
+ *
+ * The first step is to include the header files we need.  This code is written as a Chaste test suite, for
+ * easy execution using the Chaste build framework.  We thus need to include the `TestSuite.h` header, along
+ * with various system libraries, Functional Curation headers, and functionality from core Chaste.
+ */
 #include <cxxtest/TestSuite.h>
 
 #include <vector>
-#include <sstream>
-#include <cstdlib> // For system()
 #include <boost/assign/list_of.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/foreach.hpp>
 
+// Code in this project, defining the crypt model
 #include "CryptProliferationModel.hpp"
+
+// Functional Curation headers
 #include "Protocol.hpp"
 #include "ProtocolParser.hpp"
 #include "ProtocolFileFinder.hpp"
 #include "ValueExpression.hpp"
 
+// Core Chaste headers
 #include "FileFinder.hpp"
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
 
+/* This final header, from core Chaste, is needed to enable running in parallel. */
 #include "PetscSetupAndFinalize.hpp"
 
 class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
 {
     /*
-     * This method runs the given protocol on three different cell-based Chaste models,
+     * This helper method runs the given protocol on three different cell-based Chaste models,
      * writing protocol outputs to the given folder.
      *
      * Optionally some of the protocol inputs may be overridden by providing a non-empty map
@@ -79,19 +114,20 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
                      const std::map<std::string, double>& rProtocolInputs,
                      bool copyPlots=false)
     {
+        /* Create the folder to which outputs should be written. */
         OutputFileHandler handler(rOutputFolderName);
+        /* Locate the protocol definition on the file system. */
         FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
         ProtocolFileFinder proto_file("protocols/" + rProtocolName + ".txt", this_test);
 
         /* Allow the different models to be run simultaneously, if multiple processes are available. */
         PetscTools::IsolateProcesses(true);
 
-        /* Loop over available models. */
+        /* Loop over available (cell cycle) models. */
         std::vector<CryptProliferationModel::ModelType> model_types = boost::assign::list_of
                 (CryptProliferationModel::UNIFORM_WNT)
                 (CryptProliferationModel::VARIABLE_WNT)
                 (CryptProliferationModel::STOCHASTIC_GEN_BASED);
-
         for (unsigned i=0; i<model_types.size(); i++)
         {
             if (PetscTools::IsParallel() && i % PetscTools::GetNumProcs() != PetscTools::GetMyRank())
@@ -100,46 +136,53 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
                 continue;
             }
 
+            /* Get a human readable name for the model to run in this loop iteration. */
             CryptProliferationModel::ModelType model_type = model_types[i];
             std::string model_name = CryptProliferationModel::GetModelName(model_type);
-            // Where to write output for this model
+
+            /* Output for each model gets written to a sub-folder of the main output folder, named after the model. */
             std::string sub_folder_name = model_name;
             FileFinder::ReplaceSpacesWithUnderscores(sub_folder_name);
             OutputFileHandler sub_handler(handler.FindFile(sub_folder_name));
 
-            // Load the model
+            /* Load the model to simulate. */
             boost::shared_ptr<AbstractSystemWithOutputs> p_model(
                     new CryptProliferationModel(model_type,
                                                 sub_handler.FindFile("raw_results")));
 
-            // Load the protocol
+            /* Load the protocol to run on it. */
             ProtocolParser parser;
             ProtocolPtr p_protocol = parser.ParseFile(proto_file);
             p_protocol->SetOutputFolder(sub_handler);
             p_protocol->SetModel(p_model);
 
-            // Override inputs if requested
+            /* Override some of the protocol's inputs if requested. */
             typedef std::pair<std::string, double> StringDoublePair;
             BOOST_FOREACH(StringDoublePair input, rProtocolInputs)
             {
                 p_protocol->SetInput(input.first, boost::make_shared<ValueExpression>(boost::make_shared<SimpleValue>(input.second)));
             }
 
-            // Adjust plot titles to be more useful for inclusion in the paper
-            // They should look like "a) Model Name"
+            /* By default the Functional Curation system uses the plot titles specified in the protocol, and names
+             * the generated files after the title too.  However, where multiple models are being simulated under
+             * the same protocol, it is more useful to title plots based on the model name.  We also add a sub-figure
+             * index, and adjust the plot page size, so that the generated figures can be included directly in the paper.
+             */
             std::string letter(1, 'a' + model_type);
             std::string plot_title = letter + ") " + model_name;
             BOOST_FOREACH(PlotSpecificationPtr p_plot_spec, p_protocol->rGetPlotSpecifications())
             {
                 p_plot_spec->SetDisplayTitle(plot_title);
-                // Also change the plot page size
                 p_plot_spec->SetGnuplotTerminal("postscript eps enhanced size 4,3 font 16");
             }
 
-            // Run protocol
+            /* Finally, run the protocol on this model, using 'outputs' as the prefix for result file names. */
             try
             {
                 p_protocol->RunAndWrite("outputs");
+                /* Optionally copy generated plots, as described above.  We find all .eps files in the sub-folder,
+                 * and copy them, with a different name, into the main output folder.
+                 */
                 if (copyPlots)
                 {
                     FileFinder model_output_folder = sub_handler.FindFile("");
@@ -152,6 +195,9 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
             }
             catch (const Exception& r_error)
             {
+                /* If an error occurs while running the protocol (or copying plots) we display the error message,
+                 * but don't terminate execution (since the other models may run successfully).
+                 */
                 std::cerr << r_error.GetMessage() << std::endl;
                 TS_FAIL("Error running " + model_name);
             }
@@ -164,9 +210,11 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
 public:
     /*
      * This test runs the inner CryptProliferation protocol on each model, for the default crypt
-     * height of 20 nominal cell diameters.  The raw results from the underlying cell-based Chaste
+     * height of 10 nominal cell diameters.  The raw results from the underlying cell-based Chaste
      * simulation can then be used with the Chaste visualisation tools to produce the crypt schematic
      * figure in the paper (Figure 1).
+     *
+     * TODO: Describe how to do the visualisation.
      */
     void TestGenerateSteadyStatePlots() throw (Exception)
     {
@@ -177,7 +225,8 @@ public:
     }
 
     /*
-     * This test runs the main parameter sweep protocol on each of our three variant models.
+     * This test runs the main parameter sweep protocol on each of our three variant models, producing
+     * plots (a)-(c) in Figure 2.
      */
     void TestParameterSweep() throw (Exception)
     {

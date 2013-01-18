@@ -1,0 +1,35 @@
+= Connecting models to data in multiscale multicellular tissue simulations =
+
+This section of the Chaste wiki contains pages generated automatically from the source code accompanying
+"Connecting models to data in multiscale multicellular tissue simulations", our paper under submission to
+the [http://www.iccs-meeting.org/iccs2013/workshop-list.php#ws6 2013 Workshop on Interoperability in Scientific Computing],
+a satellite of [http://www.iccs-meeting.org/iccs2013/ ICCS2013].
+
+The paper describes a 'proof of concept' parameter sweep simulation performed using our [wiki:FunctionalCuration Functional Curation]
+tools on a model implemented in http://www.cs.ox.ac.uk/chaste/cell_based_index.html cell-based Chaste].
+The code which achieves this, and enables reproduction of all the figures in the paper, is shown in [./CryptProliferation this sub-page].
+
+Before running this simulation you will need to [wiki:InstallGuides/InstallGuide install Chaste's dependencies].
+The easiest way to do this is using an Ubuntu machine (or an Ubuntu virtual machine) as discussed on InstallGuides/UbuntuPackage.
+Note that Chaste is only supported on Linux/Unix systems, so users of Windows or Mac OS X will need to follow the virtual machine route.
+For manual installation of each dependency, on any version of Linux, see DeveloperInstallGuide.
+
+You will also need the Chaste source code and the source for the extension FunctionalCuration project.
+When version 3.2 is released the code for this paper will be updated to work with it, and made available on the
+[http://www.cs.ox.ac.uk/chaste/download.html main download page].
+Until then we recommend [wiki:ChasteGuides/AccessCodeRepository accessing the source code from our repository],
+using [source:trunk?rev=17910 revision 17910].  Using a command-line subversion client, you can get the required
+code in a new folder called 'Chaste' with the commands:
+{{{
+#!sh
+svn --username anonymous checkout -r17910 https://chaste.cs.ox.ac.uk/svn/chaste/trunk/ Chaste
+cd Chaste/projects
+svn --username anonymous checkout -r17910 https://chaste.cs.ox.ac.uk/svn/chaste/projects/FunctionalCuration
+svn --username reviewer checkout -r17910 https://chaste.cs.ox.ac.uk/svn/chaste/projects/Wisc2013
+}}}
+Use your email address as the password for the 'anonymous' account.
+
+'''NB''': Note that the code for this paper ''will not work'' with Chaste release 3.1 or earlier.
+
+For further information on using Chaste, see our [wiki:ChasteGuides extensive guide material].
+You may also wish to look at some of the [wiki:UserTutorials basic user tutorials].
