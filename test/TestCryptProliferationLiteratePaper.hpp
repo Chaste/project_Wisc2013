@@ -44,7 +44,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* = Connecting models to data in multiscale multicellular tissue simulations =
  *
- * This Chaste test file runs the main protocols for the above paper to be submitted to WISC2013.
+ * This Chaste test file runs the main protocols for the above paper submitted to WISC2013.
  *
  * == How to run this code ==
  *
@@ -100,7 +100,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
 {
     /*
-     * This helper method runs the given protocol on three different cell-based Chaste models,
+     * The helper method below runs the given protocol on three different cell-based Chaste models,
      * writing protocol outputs to the given folder.
      *
      * Optionally some of the protocol inputs may be overridden by providing a non-empty map
@@ -209,7 +209,7 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
 
 public:
     /*
-     * This test runs the inner CryptProliferation protocol on each model, for the default crypt
+     * This test runs the inner `CryptProliferation` protocol on each model, for the default crypt
      * height of 10 nominal cell diameters.  The raw results from the underlying cell-based Chaste
      * simulation can then be used with the Chaste visualisation tools to produce the crypt schematic
      * figure in the paper (Figure 1).

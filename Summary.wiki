@@ -31,5 +31,7 @@ Use your email address as the password for the 'anonymous' account.
 
 '''NB''': Note that the code for this paper ''will not work'' with Chaste release 3.1 or earlier.
 
+You are now ready to [./CryptProliferation run the simulations featured in the paper].
+
 For further information on using Chaste, see our [wiki:ChasteGuides extensive guide material].
 You may also wish to look at some of the [wiki:UserTutorials basic user tutorials].
