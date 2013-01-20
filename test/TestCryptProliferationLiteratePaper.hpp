@@ -93,6 +93,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FileFinder.hpp"
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
+#include "NumericFileComparison.hpp"
 
 /* This final header, from core Chaste, is needed to enable running in parallel. */
 #include "PetscSetupAndFinalize.hpp"
@@ -109,10 +110,14 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
      * If the copyPlots argument is given as true, then all automatically generated results
      * plots in the sub-folder for each model will be copied to the parent results folder,
      * with names that include the model name, for easy inclusion in the paper.
+     *
+     * If the rCheckResults vector is non-empty, then this list of results data files will be
+     * checked against recorded values, in order to ensure that the simulation results have not changed.
      */
     void RunProtocol(const std::string& rProtocolName, const std::string& rOutputFolderName,
                      const std::map<std::string, double>& rProtocolInputs,
-                     bool copyPlots=false)
+                     bool copyPlots=false,
+                     const std::vector<std::string>& rCheckResults=std::vector<std::string>())
     {
         /* Create the folder to which outputs should be written. */
         OutputFileHandler handler(rOutputFolderName);
@@ -180,6 +185,7 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
             try
             {
                 p_protocol->RunAndWrite("outputs");
+
                 /* Optionally copy generated plots, as described above.  We find all .eps files in the sub-folder,
                  * and copy them, with a different name, into the main output folder.
                  */
@@ -192,10 +198,21 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
                         graph.CopyTo(dest);
                     }
                 }
+
+                /* Check against recorded values for specific results files. */
+                BOOST_FOREACH(const std::string& r_result_name, rCheckResults)
+                {
+                    std::string csv_name = "outputs_" + r_result_name + ".csv";
+                    FileFinder new_data = sub_handler.FindFile(csv_name);
+                    FileFinder reference_data("data/" + sub_folder_name + "-" + csv_name, this_test);
+                    NumericFileComparison comp(new_data, reference_data, false);
+                    // The arguments to CompareFiles are absolute tolerance, number of header lines, relative tolerance
+                    TS_ASSERT(comp.CompareFiles(1e-4, 1, 1e-6));
+                }
             }
             catch (const Exception& r_error)
             {
-                /* If an error occurs while running the protocol (or copying plots) we display the error message,
+                /* If an error occurs while running the protocol etc. we display the error message,
                  * but don't terminate execution (since the other models may run successfully).
                  */
                 std::cerr << r_error.GetMessage() << std::endl;
@@ -231,7 +248,8 @@ public:
     void TestParameterSweep() throw (Exception)
     {
         std::map<std::string, double> protocol_inputs;
-        RunProtocol("CryptProliferationSweep", "CryptProliferationSweep", protocol_inputs, true);
+        std::vector<std::string> outputs_to_check = boost::assign::list_of("heights")("freqs")("norm_freqs");
+        RunProtocol("CryptProliferationSweep", "CryptProliferationSweep", protocol_inputs, true, outputs_to_check);
     }
 };
 
