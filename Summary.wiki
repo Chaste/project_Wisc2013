@@ -13,6 +13,7 @@ Before running this simulation you will need to [wiki:InstallGuides/InstallGuide
 The easiest way to do this is using an Ubuntu machine (or an Ubuntu virtual machine) as discussed on InstallGuides/UbuntuPackage.
 Note that Chaste is only supported on Linux/Unix systems, so users of Windows or Mac OS X will need to follow the virtual machine route.
 For manual installation of each dependency, on any version of Linux, see DeveloperInstallGuide.
+In order to generate result figures automatically, you will also need to install [http://www.gnuplot.info/ Gnuplot].
 
 You will also need the Chaste source code and the source for the extension FunctionalCuration project.
 When version 3.2 is released the code for this paper will be updated to work with it, and made available on the
