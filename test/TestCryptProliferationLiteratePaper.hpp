@@ -231,7 +231,12 @@ public:
      * simulation can then be used with the Chaste visualisation tools to produce the crypt schematic
      * figure in the paper (Figure 1).
      *
-     * TODO: Describe how to do the visualisation.
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do:
+     * {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CryptProliferationSteadyState/Stochastic_Generation-based/raw_results/results_from_time_0}}} and
+     * {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CryptProliferationSteadyState/Uniform_Wnt/raw_results/results_from_time_0}}}.
+     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
+     * java executable. See RunningCellBasedVisualization for more detail on the visualisation tool.
      */
     void TestGenerateSteadyStatePlots() throw (Exception)
     {
