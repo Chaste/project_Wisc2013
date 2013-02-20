@@ -76,33 +76,32 @@ double CellRetainerForce<DIM>::GetPanethCellForceMagnitudeParameter()
 }
 
 template<unsigned DIM>
-void CellRetainerForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                          AbstractCellPopulation<DIM>& rCellPopulation)
+void CellRetainerForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>& rCellPopulation)
 {
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = rCellPopulation.Begin();
-             cell_iter != rCellPopulation.End();
-             ++cell_iter)
+         cell_iter != rCellPopulation.End();
+         ++cell_iter)
     {
        boost::shared_ptr<AbstractCellProliferativeType> p_cell_type = cell_iter->GetCellProliferativeType();
 
-       if(p_cell_type->IsType<StemCellProliferativeType>())
+       if (p_cell_type->IsType<StemCellProliferativeType>())
        {
             unsigned node_global_index = rCellPopulation.GetLocationIndexUsingCell(*cell_iter);
 
-            c_vector<double,DIM> force_direction = zero_vector<double>(DIM);
-            force_direction[DIM-1]=-1.0;
+            c_vector<double,DIM> force = zero_vector<double>(DIM);
+            force[DIM-1] = -mStemCellForceMagnitudeParameter;
 
-            rForces[node_global_index] +=mStemCellForceMagnitudeParameter*force_direction;
+            rCellPopulation.GetNode(node_global_index)->AddAppliedForceContribution(force);
         }
 
-        else if(p_cell_type->IsType<PanethCellProliferativeType>())
+        else if (p_cell_type->IsType<PanethCellProliferativeType>())
         {
              unsigned node_global_index = rCellPopulation.GetLocationIndexUsingCell(*cell_iter);
 
-             c_vector<double,DIM> force_direction = zero_vector<double>(DIM);
-             force_direction[DIM-1]=-1.0;
+             c_vector<double,DIM> force = zero_vector<double>(DIM);
+             force[DIM-1] = -mPanethCellForceMagnitudeParameter;
 
-             rForces[node_global_index] += mPanethCellForceMagnitudeParameter*force_direction;
+             rCellPopulation.GetNode(node_global_index)->AddAppliedForceContribution(force);
          }
     }
 }
