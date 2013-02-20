@@ -69,6 +69,9 @@ public:
     /**
      * Create a new model instance.
      *
+     * This also sets up the default values for parameters available to be set from a protocol.
+     * See the code for details.
+     *
      * @param modelType  which specific model to create
      * @param rOutputFolder  where to place temporary model outputs
      */

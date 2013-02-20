@@ -87,18 +87,13 @@ std::string CryptProliferationModel::GetModelName(ModelType modelType)
 }
 
 
-/**
- * Create a new model instance.
- *
- * @param modelType  which specific model to create
- * @param rOutputFolder  where to place temporary model outputs
- */
 CryptProliferationModel::CryptProliferationModel(ModelType modelType,
                                                  const FileFinder& rOutputFolder)
     : mModelType(modelType),
       mOutputFolder(rOutputFolder)
 {
-    // Set up our parameters environment with default values
+    // Set up our parameters environment with default values.
+    // CV is a helper macro that converts a double into the wrapped Functional Curation equivalent.
     std::map<std::string, AbstractValuePtr> default_model_params;
     default_model_params["cells_across"] = CV(6);
     default_model_params["crypt_width"] = CV(5);
@@ -106,7 +101,7 @@ CryptProliferationModel::CryptProliferationModel(ModelType modelType,
     default_model_params["cells_up"] = CV(24);
     default_model_params["thickness_of_ghost_layer"] = CV(1);
     default_model_params["end_time"] = CV(50);
-    default_model_params["dt_divisor"] = CV(120);
+    default_model_params["dt_divisor"] = CV(200);
     mpModelParameters.reset(new RestrictedEnvironment(default_model_params));
     // Set up what outputs are available
     mOutputNames.push_back("divisions");
@@ -129,10 +124,6 @@ void CryptProliferationModel::SetNamespaceBindings(const std::map<std::string, s
 }
 
 
-/**
- * Get the simulation outputs of interest in the Functional Curation data structures.
- * SolveModel must have been called prior to using this method.
- */
 EnvironmentCPtr CryptProliferationModel::GetOutputs()
 {
     EnvironmentPtr p_outputs(new Environment);
