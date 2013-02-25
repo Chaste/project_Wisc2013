@@ -247,7 +247,7 @@ public:
     void TestGenerateSteadyStatePlots() throw (Exception)
     {
         std::map<std::string, double> protocol_inputs;
-        protocol_inputs["end_time"] = 150.0;
+        protocol_inputs["end_time"] = 130.0;
         protocol_inputs["steady_state_time"] = 0.0;
         RunProtocol("CryptProliferation", "CryptProliferationSteadyState", protocol_inputs);
     }

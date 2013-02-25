@@ -95,13 +95,13 @@ CryptProliferationModel::CryptProliferationModel(ModelType modelType,
     // Set up our parameters environment with default values.
     // CV is a helper macro that converts a double into the wrapped Functional Curation equivalent.
     std::map<std::string, AbstractValuePtr> default_model_params;
-    default_model_params["cells_across"] = CV(6);
-    default_model_params["crypt_width"] = CV(5);
+    default_model_params["cells_across"] = CV(14);
+    default_model_params["crypt_width"] = CV(10);
     default_model_params["crypt_length"] = CV(20);
     default_model_params["cells_up"] = CV(24);
-    default_model_params["thickness_of_ghost_layer"] = CV(1);
+    default_model_params["thickness_of_ghost_layer"] = CV(2);
     default_model_params["end_time"] = CV(50);
-    default_model_params["dt_divisor"] = CV(200);
+    default_model_params["dt_divisor"] = CV(360);
     mpModelParameters.reset(new RestrictedEnvironment(default_model_params));
     // Set up what outputs are available
     mOutputNames.push_back("divisions");
@@ -181,8 +181,12 @@ void CryptProliferationModel::SolveModel(double endPoint)
             BOOST_FOREACH(CellPtr p_cell, cells)
             {
                   CCM(SimpleWntUniformDistCellCycleModel, p_cell)->SetWntTransitThreshold(0.5);   // So only proliferate in bottom half of the crypt
-                  CCM(SimpleWntUniformDistCellCycleModel, p_cell)->SetSDuration(4.0);             // So total CCM is U[10,14]
-                  CCM(SimpleWntUniformDistCellCycleModel, p_cell)->SetTransitCellG1Duration(2.0); // So total CCM is U[10,14]
+
+                  CCM(SimpleWntUniformDistCellCycleModel, p_cell)->SetMDuration(4.0);
+	       		  CCM(SimpleWntUniformDistCellCycleModel, p_cell)->SetSDuration(4.0);
+    			  CCM(SimpleWntUniformDistCellCycleModel, p_cell)->SetG2Duration(2.0);
+				  CCM(SimpleWntUniformDistCellCycleModel, p_cell)->SetTransitCellG1Duration(2.0);  // so total CCM is U[10,14] at threshold
+                  CCM(SimpleWntUniformDistCellCycleModel, p_cell)->SetStemCellG1Duration(14.0);  // so total CCM is U[10,14] at base
             }
             break;
         }
@@ -193,8 +197,12 @@ void CryptProliferationModel::SolveModel(double endPoint)
             BOOST_FOREACH(CellPtr p_cell, cells)
             {
                 CCM(VariableWntCellCycleModel, p_cell)->SetWntTransitThreshold(0.5);   // So only proliferate in bottom half of the crypt
-                CCM(VariableWntCellCycleModel, p_cell)->SetSDuration(4.0);             // So total CCM is U[10,14]
-                CCM(VariableWntCellCycleModel, p_cell)->SetTransitCellG1Duration(2.0); // So total CCM is U[10,14]
+
+                CCM(VariableWntCellCycleModel, p_cell)->SetMDuration(4.0);
+				CCM(VariableWntCellCycleModel, p_cell)->SetSDuration(4.0);
+				CCM(VariableWntCellCycleModel, p_cell)->SetG2Duration(2.0);
+				CCM(VariableWntCellCycleModel, p_cell)->SetTransitCellG1Duration(2.0);  // so total CCM is U[10,14] at threshold
+				CCM(VariableWntCellCycleModel, p_cell)->SetStemCellG1Duration(14.0);  // so total CCM is U[10,14] at base
             }
             break;
         }
@@ -204,7 +212,15 @@ void CryptProliferationModel::SolveModel(double endPoint)
             cells_generator.Generate(cells, p_mesh, location_indices, true, 0.0, 3.0, 6.5, 8.0);
             BOOST_FOREACH(CellPtr p_cell, cells)
             {
-                CCM(StochasticDurationGenerationBasedCellCycleModel, p_cell)->SetMaxTransitGenerations(3u); // So only proliferate roughly in bottom half of the crypt
+                CCM(StochasticDurationGenerationBasedCellCycleModel, p_cell)->SetMaxTransitGenerations(4u); // So only proliferate roughly in bottom half of the crypt
+
+                CCM(StochasticDurationGenerationBasedCellCycleModel, p_cell)->SetMDuration(4.0);
+				CCM(StochasticDurationGenerationBasedCellCycleModel, p_cell)->SetSDuration(4.0);
+				CCM(StochasticDurationGenerationBasedCellCycleModel, p_cell)->SetG2Duration(2.0);
+				CCM(StochasticDurationGenerationBasedCellCycleModel, p_cell)->SetTransitCellG1Duration(2.0);  // so total CCM is U[10,14] at threshold
+				CCM(StochasticDurationGenerationBasedCellCycleModel, p_cell)->SetStemCellG1Duration(14.0);  // so total CCM is U[10,14] at base
+
+
             }
             break;
         }
@@ -214,9 +230,15 @@ void CryptProliferationModel::SolveModel(double endPoint)
             cells_generator.Generate(cells, p_mesh, location_indices, true, 0.0, 3.0, 6.5, 8.);
             BOOST_FOREACH(CellPtr p_cell, cells)
             {
-                CCM(ContactInhibitionGenerationBasedCellCycleModel, p_cell)->SetMaxTransitGenerations(3u); // So only proliferate roughly in bottom half of the crypt
+                CCM(ContactInhibitionGenerationBasedCellCycleModel, p_cell)->SetMaxTransitGenerations(4u); // So only proliferate roughly in bottom half of the crypt
                 CCM(ContactInhibitionGenerationBasedCellCycleModel, p_cell)->SetEquilibriumVolume(0.866); //sqrt(3)/2
                 CCM(ContactInhibitionGenerationBasedCellCycleModel, p_cell)->SetQuiescentVolumeFraction(0.8);
+
+                CCM(ContactInhibitionGenerationBasedCellCycleModel, p_cell)->SetMDuration(4.0);
+				CCM(ContactInhibitionGenerationBasedCellCycleModel, p_cell)->SetSDuration(4.0);
+				CCM(ContactInhibitionGenerationBasedCellCycleModel, p_cell)->SetG2Duration(2.0);
+				CCM(ContactInhibitionGenerationBasedCellCycleModel, p_cell)->SetTransitCellG1Duration(2.0);  // so total CCM is U[10,14] at threshold
+				CCM(ContactInhibitionGenerationBasedCellCycleModel, p_cell)->SetStemCellG1Duration(14.0);  // so total CCM is U[10,14] at base
             }
             break;
         }
@@ -244,7 +266,7 @@ void CryptProliferationModel::SolveModel(double endPoint)
 
     // Set forces acting on cells
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
-    p_force->SetMeinekeSpringStiffness(50.0); //normally 15.0 but 30 in all CellBased Papers; modified to stop crowding at base of crypt
+    p_force->SetMeinekeSpringStiffness(100.0); //normally 15.0 but 30 in all CellBased Papers; modified to stop crowding at base of crypt
     p_force->SetCutOffLength(1.5);
     simulator.AddForce(p_force);
     // As there is a WntConcentration the stem cells aren't fixed so we use a CellRetainerForce
