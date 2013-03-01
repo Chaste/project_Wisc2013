@@ -5,10 +5,10 @@ namespace cellbased = 'https://chaste.cs.ox.ac.uk/nss/cellbased/0.1#'
 inputs {    # Protocol inputs
     num_boxes = 10       # The number of boxes to use in the location histogram
     crypt_height = 20    # The height of the crypt (in nominal cell diameters)
-    end_time = 1100       # The simulation end time (hours)
+    end_time = 2200       # The simulation end time (hours)
     # The time at which the system is assumed to have reached quasi steady state (hours).
     # We ignore division events occurring before this point.
-    steady_state_time = 100
+    steady_state_time = 200
 }
 # Import the standard library of post-processing operations, using a relative path.
 # Functions from this library may then be used by prefixing their names with 'std:'.
