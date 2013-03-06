@@ -1,9 +1,8 @@
 = Connecting models to data in multiscale multicellular tissue simulations =
 
 This section of the Chaste wiki contains pages generated automatically from the source code accompanying
-"Connecting models to data in multiscale multicellular tissue simulations", our paper under submission to
-the [http://www.iccs-meeting.org/iccs2013/workshop-list.php#ws6 2013 Workshop on Interoperability in Scientific Computing],
-a satellite of [http://www.iccs-meeting.org/iccs2013/ ICCS2013].
+"Connecting models to data in multiscale multicellular tissue simulations", our paper to appear in
+the [http://www.iccs-meeting.org/iccs2013 2013 International Conference on Computational Science].
 
 The paper describes a 'proof of concept' parameter sweep simulation performed using our [wiki:FunctionalCuration Functional Curation]
 tools on a model implemented in http://www.cs.ox.ac.uk/chaste/cell_based_index.html cell-based Chaste].
@@ -19,14 +18,14 @@ You will also need the Chaste source code and the source for the extension Funct
 When version 3.2 is released the code for this paper will be updated to work with it, and made available on the
 [http://www.cs.ox.ac.uk/chaste/download.html main download page].
 Until then we recommend [wiki:ChasteGuides/AccessCodeRepository accessing the source code from our repository],
-using [source:trunk?rev=18146 revision 18146].  Using a command-line subversion client, you can get the required
+using [source:trunk?rev=18240 revision 18240].  Using a command-line subversion client, you can get the required
 code in a new folder called 'Chaste' with the commands:
 {{{
 #!sh
-svn --username anonymous checkout -r18146 https://chaste.cs.ox.ac.uk/svn/chaste/trunk/ Chaste
+svn --username anonymous checkout -r18240 https://chaste.cs.ox.ac.uk/svn/chaste/trunk/ Chaste
 cd Chaste/projects
-svn --username anonymous checkout -r18146 https://chaste.cs.ox.ac.uk/svn/chaste/projects/FunctionalCuration
-svn --username reviewer checkout -r18146 https://chaste.cs.ox.ac.uk/svn/chaste/projects/Wisc2013
+svn --username anonymous checkout -r18240 https://chaste.cs.ox.ac.uk/svn/chaste/projects/FunctionalCuration
+svn --username reviewer checkout -r18240 https://chaste.cs.ox.ac.uk/svn/chaste/projects/Wisc2013
 }}}
 Use your email address as the password for the 'anonymous' account.
 

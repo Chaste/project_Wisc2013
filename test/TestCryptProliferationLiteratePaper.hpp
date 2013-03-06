@@ -44,7 +44,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* = Connecting models to data in multiscale multicellular tissue simulations =
  *
- * This Chaste test file runs the main protocols for the above paper submitted to WISC2013.
+ * This Chaste test file runs the main protocols for the above paper to appear in ICCS2013.
  *
  * == How to run this code ==
  *
@@ -65,6 +65,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * {{{
  * scons -j4 chaste_libs=1 build=GccOptNative_3 projects/Wisc2013/test/TestCryptProliferationLiteratePaper.hpp
  * }}}
+ * With these settings on our test machine, reproducing the paper results takes about 23 hours.
  */
 
 /* == The code itself ==
