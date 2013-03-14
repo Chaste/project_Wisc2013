@@ -25,7 +25,7 @@ code in a new folder called 'Chaste' with the commands:
 svn --username anonymous checkout -r18240 https://chaste.cs.ox.ac.uk/svn/chaste/trunk/ Chaste
 cd Chaste/projects
 svn --username anonymous checkout -r18240 https://chaste.cs.ox.ac.uk/svn/chaste/projects/FunctionalCuration
-svn --username reviewer checkout -r18240 https://chaste.cs.ox.ac.uk/svn/chaste/projects/Wisc2013
+svn --username anonymous checkout -r18240 https://chaste.cs.ox.ac.uk/svn/chaste/projects/Wisc2013
 }}}
 Use your email address as the password for the 'anonymous' account.
 
