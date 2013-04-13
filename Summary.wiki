@@ -3,9 +3,10 @@
 This section of the Chaste wiki contains pages generated automatically from the source code accompanying
 "Connecting models to data in multiscale multicellular tissue simulations", our paper to appear in
 the [http://www.iccs-meeting.org/iccs2013 2013 International Conference on Computational Science].
+(A [attachment:paper627.pdf pre-print] is attached to this wiki page.)
 
 The paper describes a 'proof of concept' parameter sweep simulation performed using our [wiki:FunctionalCuration Functional Curation]
-tools on a model implemented in http://www.cs.ox.ac.uk/chaste/cell_based_index.html cell-based Chaste].
+tools on a model implemented in [http://www.cs.ox.ac.uk/chaste/cell_based_index.html cell-based Chaste].
 The code which achieves this, and enables reproduction of all the figures in the paper, is shown in [./CryptProliferation this sub-page].
 
 Before running this simulation you will need to [wiki:InstallGuides/InstallGuide install Chaste's dependencies].
