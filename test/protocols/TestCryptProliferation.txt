@@ -11,8 +11,8 @@ post-processing {
     # Check results are as expected (for Contact Inhibition CCM)
     assert sim:divisions.IS_ARRAY
     assert sim:divisions.NUM_DIMS == 2
-    assert sim:divisions.SHAPE[0] == 881  # Each division event is a separate row
+    assert sim:divisions.SHAPE[0] == 820  # Each division event is a separate row
     assert sim:divisions.SHAPE[1] == 4    # Fields time, x, y, age
-    assert sim:divisions[0][0] == 0.191667
-    assert sim:divisions[-1][2] == 0.951957
+    assert sim:divisions[0][0] == 0.4
+    assert sim:divisions[-1][2] == 13.016
 }
