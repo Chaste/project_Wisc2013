@@ -59,8 +59,7 @@ public:
 
         // Load the model
         boost::shared_ptr<AbstractSystemWithOutputs> p_model(
-                new CryptProliferationModel(CryptProliferationModel::CONTACT_INHIBITION,
-                                            handler.FindFile("raw_results")));
+                new CryptProliferationModel(CryptProliferationModel::CONTACT_INHIBITION));
 
         // Load the protocol
         ProtocolParser parser;
@@ -82,8 +81,7 @@ public:
 
         // Load the model
         boost::shared_ptr<AbstractSystemWithOutputs> p_model(
-                new CryptProliferationModel(CryptProliferationModel::CONTACT_INHIBITION,
-                                            handler.FindFile("raw_results")));
+                new CryptProliferationModel(CryptProliferationModel::CONTACT_INHIBITION));
 
         // Load the protocol
         ProtocolParser parser;

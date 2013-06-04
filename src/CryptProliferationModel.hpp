@@ -73,10 +73,8 @@ public:
      * See the code for details.
      *
      * @param modelType  which specific model to create
-     * @param rOutputFolder  where to place temporary model outputs
      */
-    CryptProliferationModel(ModelType modelType,
-                            const FileFinder& rOutputFolder);
+    CryptProliferationModel(ModelType modelType);
 
     /**
      * Get the simulation outputs of interest in the Functional Curation data structures.

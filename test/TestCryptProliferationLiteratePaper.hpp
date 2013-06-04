@@ -152,9 +152,7 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
             OutputFileHandler sub_handler(handler.FindFile(sub_folder_name));
 
             /* Load the model to simulate. */
-            boost::shared_ptr<AbstractSystemWithOutputs> p_model(
-                    new CryptProliferationModel(model_type,
-                                                sub_handler.FindFile("raw_results")));
+            boost::shared_ptr<AbstractSystemWithOutputs> p_model(new CryptProliferationModel(model_type));
 
             /* Load the protocol to run on it. */
             ProtocolParser parser;

@@ -36,6 +36,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CryptProliferationModel.hpp"
 
 #include <cassert>
+#include <sstream>
 #include <boost/foreach.hpp>
 
 // Functional curation includes
@@ -88,10 +89,8 @@ std::string CryptProliferationModel::GetModelName(ModelType modelType)
 }
 
 
-CryptProliferationModel::CryptProliferationModel(ModelType modelType,
-                                                 const FileFinder& rOutputFolder)
-    : mModelType(modelType),
-      mOutputFolder(rOutputFolder)
+CryptProliferationModel::CryptProliferationModel(ModelType modelType)
+    : mModelType(modelType)
 {
     // Set up our parameters environment with default values.
     // CV is a helper macro that converts a double into the wrapped Functional Curation equivalent.
@@ -128,6 +127,7 @@ void CryptProliferationModel::SetNamespaceBindings(const std::map<std::string, s
 EnvironmentCPtr CryptProliferationModel::GetOutputs()
 {
     EnvironmentPtr p_outputs(new Environment);
+    assert(mOutputFolder.IsPathSet());
     FileFinder raw_results("results_from_time_0/divisions.dat", mOutputFolder);
     // The raw results have four whitespace-separated columns: time, x co-ord, y co-ord, parent age
     // We convert this into a 2d array, with the last dimension having extent 4
@@ -155,6 +155,10 @@ EnvironmentCPtr CryptProliferationModel::GetOutputs()
 
 void CryptProliferationModel::SolveModel(double endPoint)
 {
+    assert(mpOutputHandler);
+    std::stringstream raw_results_path;
+    raw_results_path << "raw_results" << PetscTools::GetMyRank();
+    mOutputFolder.SetPath(raw_results_path.str(), GetOutputFolder());
     //
     // Set up the simulation object
     //
