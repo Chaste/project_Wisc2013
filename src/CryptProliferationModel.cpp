@@ -106,6 +106,8 @@ CryptProliferationModel::CryptProliferationModel(ModelType modelType)
     // Set up what outputs are available
     mOutputNames.push_back("divisions");
     mOutputUnits.push_back("mixed");
+    // No state is kept between calls to SolveModel
+    mHasImplicitReset = true;
 }
 
 
