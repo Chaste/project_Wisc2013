@@ -55,7 +55,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ContactInhibitionGenerationBasedCellCycleModel.hpp"
 #include "VariableWntCellCycleModel.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
-#include "VolumeTrackedOffLatticeSimulation.hpp"
+#include "OffLatticeSimulation.hpp"
+#include "VolumeTrackingModifier.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "CellRetainerForce.hpp"
 #include "SloughingCellKiller.hpp"
@@ -251,7 +252,7 @@ void CryptProliferationModel::SolveModel(double endPoint)
     MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
     // Create the simulator, and set some extra parameters
-    VolumeTrackedOffLatticeSimulation<2> simulator(crypt);
+    OffLatticeSimulation<2> simulator(crypt);
     FileFinder test_output_root("", RelativeTo::ChasteTestOutput);
     simulator.SetOutputDirectory(mOutputFolder.GetRelativePath(test_output_root));
     simulator.SetOutputDivisionLocations(true); // The output we're really interested in
@@ -282,6 +283,10 @@ void CryptProliferationModel::SolveModel(double endPoint)
     MAKE_PTR_ARGS(CryptSimulationBoundaryCondition<2>, p_bc, (&crypt));
     p_bc->SetUseJiggledBottomCells(true);
     simulator.AddCellPopulationBoundaryCondition(p_bc);
+
+    // Track cell volumes
+    MAKE_PTR(VolumeTrackingModifier<2>, p_vol_tracker);
+    simulator.AddSimulationModifier(p_vol_tracker);
 
     //
     // Run the simulation
