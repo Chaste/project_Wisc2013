@@ -108,6 +108,10 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
      * Optionally some of the protocol inputs may be overridden by providing a non-empty map
      * as the third argument.
      *
+     * The fourth argument modelsInParallel specifies whether, if multiple processes are available,
+     * to run the protocol on multiple models simultaneously, or whether the protocol should try to
+     * parallelise internally.
+     *
      * If the copyPlots argument is given as true, then all automatically generated results
      * plots in the sub-folder for each model will be copied to the parent results folder,
      * with names that include the model name, for easy inclusion in the paper.
@@ -117,6 +121,7 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
      */
     void RunProtocol(const std::string& rProtocolName, const std::string& rOutputFolderName,
                      const std::map<std::string, double>& rProtocolInputs,
+                     bool modelsInParallel,
                      bool copyPlots=false,
                      const std::vector<std::string>& rCheckResults=std::vector<std::string>())
     {
@@ -126,8 +131,11 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
         FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
         ProtocolFileFinder proto_file("protocols/" + rProtocolName + ".txt", this_test);
 
-        /* Allow the different models to be run simultaneously, if multiple processes are available. */
-        PetscTools::IsolateProcesses(true);
+        if (modelsInParallel)
+        {
+            /* Allow the different models to be run simultaneously, if multiple processes are available. */
+            PetscTools::IsolateProcesses(true);
+        }
 
         /* Loop over available (cell cycle) models. */
         std::vector<CryptProliferationModel::ModelType> model_types = boost::assign::list_of
@@ -136,7 +144,7 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
                 (CryptProliferationModel::STOCHASTIC_GEN_BASED);
         for (unsigned i=0; i<model_types.size(); i++)
         {
-            if (PetscTools::IsParallel() && i % PetscTools::GetNumProcs() != PetscTools::GetMyRank())
+            if (modelsInParallel && PetscTools::IsParallel() && i % PetscTools::GetNumProcs() != PetscTools::GetMyRank())
             {
                 // Let another process run this model
                 continue;
@@ -159,6 +167,14 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
             ProtocolPtr p_protocol = parser.ParseFile(proto_file);
             p_protocol->SetOutputFolder(sub_handler);
             p_protocol->SetModel(p_model);
+
+            /* As an alternative to running different models on different processes, the Functional Curation system
+             * can also parallelise nested simulation loops automatically in some circumstances.  This line turns
+             * that functionality on if modelsInParallel is false, which is the case for the main parameter sweep.
+             * Thus while generating the steady state plots can use at most 3 processes (corresponding to the 3 cell
+             * cycle models) the parameter sweep can use up to 5 (the number of crypt heights to test).
+             */
+            p_protocol->SetParalleliseLoops(!modelsInParallel);
 
             /* Override some of the protocol's inputs if requested. */
             typedef std::pair<std::string, double> StringDoublePair;
@@ -188,7 +204,7 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
                 /* Optionally copy generated plots, as described above.  We find all .eps files in the sub-folder,
                  * and copy them, with a different name, into the main output folder.
                  */
-                if (copyPlots)
+                if (copyPlots && PetscTools::AmMaster())
                 {
                     FileFinder model_output_folder = sub_handler.FindFile("");
                     BOOST_FOREACH(FileFinder graph, model_output_folder.FindMatches("*.eps"))
@@ -219,8 +235,11 @@ class TestCryptProliferationLiteratePaper : public CxxTest::TestSuite
             }
         }
 
-        /* Stop isolating processes, to avoid problems running the next protocol. */
-        PetscTools::IsolateProcesses(false);
+        if (modelsInParallel)
+        {
+            // Stop isolating processes, to avoid problems running the next protocol.
+            PetscTools::IsolateProcesses(false);
+        }
     }
 
 public:
@@ -248,7 +267,7 @@ public:
         std::map<std::string, double> protocol_inputs;
         protocol_inputs["end_time"] = 130.0;
         protocol_inputs["steady_state_time"] = 0.0;
-        RunProtocol("CryptProliferation", "CryptProliferationSteadyState", protocol_inputs);
+        RunProtocol("CryptProliferation", "CryptProliferationSteadyState", protocol_inputs, true, false);
     }
 
     /*
@@ -259,7 +278,7 @@ public:
     {
         std::map<std::string, double> protocol_inputs;
         std::vector<std::string> outputs_to_check = boost::assign::list_of("heights")("freqs")("norm_freqs");
-        RunProtocol("CryptProliferationSweep", "CryptProliferationSweep", protocol_inputs, true, outputs_to_check);
+        RunProtocol("CryptProliferationSweep", "CryptProliferationSweep", protocol_inputs, false, true, outputs_to_check);
     }
 };
 

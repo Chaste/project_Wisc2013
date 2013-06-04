@@ -45,14 +45,13 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "FileFinder.hpp"
 #include "OutputFileHandler.hpp"
+#include "FakePetscSetup.hpp"
 
 class TestCryptProliferationProtocol : public CxxTest::TestSuite
 {
 public:
     void TestBasicRun() throw (Exception)
     {
-        EXIT_IF_PARALLEL;
-
         OutputFileHandler handler("TestCryptProliferationProtocol_Basic");
         FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
         ProtocolFileFinder proto_file("protocols/TestCryptProliferation.xml", this_test);
@@ -73,8 +72,6 @@ public:
 
     void TestCompactSyntax() throw (Exception)
     {
-        EXIT_IF_PARALLEL;
-
         OutputFileHandler handler("TestCryptProliferationProtocol_Compact");
         FileFinder this_test(__FILE__, RelativeTo::ChasteSourceRoot);
         ProtocolFileFinder proto_file("protocols/TestCryptProliferation.txt", this_test);
