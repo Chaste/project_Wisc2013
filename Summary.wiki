@@ -19,14 +19,14 @@ You will also need the Chaste source code and the source for the extension Funct
 When version 3.2 is released the code for this paper will be updated to work with it, and made available on the
 [http://www.cs.ox.ac.uk/chaste/download.html main download page].
 Until then we recommend [wiki:ChasteGuides/AccessCodeRepository accessing the source code from our repository],
-using [source:trunk?rev=18240 revision 18240].  Using a command-line subversion client, you can get the required
+using [source:trunk?rev=19068 revision 19068].  Using a command-line subversion client, you can get the required
 code in a new folder called 'Chaste' with the commands:
 {{{
 #!sh
-svn --username anonymous checkout -r18240 https://chaste.cs.ox.ac.uk/svn/chaste/trunk/ Chaste
+svn --username anonymous checkout -r19068 https://chaste.cs.ox.ac.uk/svn/chaste/trunk/ Chaste
 cd Chaste/projects
-svn --username anonymous checkout -r18240 https://chaste.cs.ox.ac.uk/svn/chaste/projects/FunctionalCuration
-svn --username anonymous checkout -r18240 https://chaste.cs.ox.ac.uk/svn/chaste/projects/Wisc2013
+svn --username anonymous checkout -r19068 https://chaste.cs.ox.ac.uk/svn/chaste/projects/FunctionalCuration
+svn --username anonymous checkout -r19068 https://chaste.cs.ox.ac.uk/svn/chaste/projects/Wisc2013
 }}}
 Use your email address as the password for the 'anonymous' account.
 
