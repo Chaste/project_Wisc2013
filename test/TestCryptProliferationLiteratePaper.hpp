@@ -44,7 +44,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* = Connecting models to data in multiscale multicellular tissue simulations =
  *
- * This Chaste test file runs the main protocols for the above paper to appear in ICCS2013.
+ * This Chaste test file runs the main protocols for the above
+ * [http://dx.doi.org/10.1016/j.procs.2013.05.235 paper published in ICCS2013].
  *
  * == How to run this code ==
  *
