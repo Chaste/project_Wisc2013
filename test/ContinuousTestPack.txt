@@ -1,3 +1,2 @@
-TestArrayFileReader.hpp
 TestCryptProliferationProtocol.hpp
 TestRestrictedEnvironment.hpp
