@@ -33,14 +33,19 @@ tasks {     # The raw simulations to perform
     }
 }
 post-processing {
-    box_size = crypt_height / num_boxes  # y coordinates start at zero
-    box_lows = [i*box_size for i in 0:num_boxes]
-    box_highs = [(i+1)*box_size for i in 0:num_boxes]
-    centres = map(lambda a, b: (a+b)/2, box_lows, box_highs)
     # The main simulation output is the 2d array of division data, with 4 columns:
     # time, x, y, age.  We extract division y coordinates for events after the given time.
     locations = std:After(sim:divisions[1$2], sim:divisions[1$0], steady_state_time)
     num_divisions = locations.SHAPE[0]
+
+    # Determine the histogram boxes, noting that a few divisions can occur below or above the nominal crypt bounds
+    box_size = crypt_height / num_boxes  # y coordinates nominally start at zero
+    box_lows = std:Join([MathML:min(std:Min(locations)[0], 0.0)],
+                        [i*box_size for i in 1:num_boxes])
+    box_highs = std:Join([(i+1)*box_size for i in 0:num_boxes-1],
+                         [MathML:max(std:Max(locations)[0]*1.00001, crypt_height)])
+    centres = map(lambda a, b: (a+b)/2, box_lows, box_highs)
+
     # Figure out which histogram box each cell division occurred in, and count them up
     locations_ext = Stretch(locations, num_boxes, 0)       # Make all the _ext arrays the same
     box_lows_ext = Stretch(box_lows, num_divisions, 1)     # shape: [num_boxes, num_divisions]

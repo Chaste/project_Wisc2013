@@ -14,5 +14,5 @@ post-processing {
     assert sim:divisions.SHAPE[0] == 820  # Each division event is a separate row
     assert sim:divisions.SHAPE[1] == 4    # Fields time, x, y, age
     assert sim:divisions[0][0] == 0.4
-    assert sim:divisions[-1][2] == 13.016
+    assert sim:divisions[-1][2] == 13.0368
 }
