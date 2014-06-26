@@ -11,22 +11,21 @@ The code which achieves this, and enables reproduction of all the figures in the
 
 Before running this simulation you will need to [wiki:InstallGuides/InstallGuide install Chaste's dependencies].
 The easiest way to do this is using an Ubuntu machine (or an Ubuntu virtual machine) as discussed on InstallGuides/UbuntuPackage.
-Note that Chaste is only supported on Linux/Unix systems, so users of Windows or Mac OS X will need to follow the virtual machine route.
-For manual installation of each dependency, on any version of Linux, see DeveloperInstallGuide.
+Note that while Chaste 3.2 has support for cell-based Chaste on Windows and Mac OS X, the code for this paper ''does not work''
+on Windows, and has not been tested on Mac OS X, so the virtual machine route may be advisable in these instances.
 In order to generate result figures automatically, you will also need to install [http://www.gnuplot.info/ Gnuplot].
 
-You will also need the Chaste source code and the source for the extension FunctionalCuration project.
-When version 3.2 is released the code for this paper will be updated to work with it, and made available on the
-[http://www.cs.ox.ac.uk/chaste/download.html main download page].
-Until then we recommend [wiki:ChasteGuides/AccessCodeRepository accessing the source code from our repository],
-using [source:trunk?rev=19068 revision 19068].  Using a command-line subversion client, you can get the required
-code in a new folder called 'Chaste' with the commands:
+You will also need the Chaste source code for this paper and the source for the extension FunctionalCuration project.
+These are available from the [http://www.cs.ox.ac.uk/chaste/download.html main Chaste download page] as extensions to
+Chaste release 3.2 under the projects heading,
+or you can [wiki:ChasteGuides/AccessCodeRepository access the source code direct from our repository].
+For the latter option, using a command-line subversion client, you can get the required code in a new folder called 'Chaste' with the commands:
 {{{
 #!sh
-svn --username anonymous checkout -r19068 https://chaste.cs.ox.ac.uk/svn/chaste/trunk/ Chaste
+svn --username anonymous checkout https://chaste.cs.ox.ac.uk/svn/chaste/tags/release_3.2 Chaste
 cd Chaste/projects
-svn --username anonymous checkout -r19068 https://chaste.cs.ox.ac.uk/svn/chaste/projects/FunctionalCuration
-svn --username anonymous checkout -r19068 https://chaste.cs.ox.ac.uk/svn/chaste/projects/Wisc2013
+svn --username anonymous checkout https://chaste.cs.ox.ac.uk/svn/chaste/tags/FunctionalCuration_release_3.2 FunctionalCuration
+svn --username anonymous checkout https://chaste.cs.ox.ac.uk/svn/chaste/tags/Wisc2013_release_3.2 Wisc2013
 }}}
 Use your email address as the password for the 'anonymous' account.
 

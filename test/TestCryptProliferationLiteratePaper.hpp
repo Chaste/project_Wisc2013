@@ -61,12 +61,12 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * {{{
  * scons -j4 chaste_libs=1 build=GccOptNative projects/Wisc2013/test/TestCryptProliferationLiteratePaper.hpp
  * }}}
- * to build on 4 cores.  You can additionally run the code itself in parallel, in order to run the parameter
- * sweep on all of the 3 models simultaneously, using the `GccOptNative_3` build type, e.g.
+ * to build on 4 cores.  You can additionally run the code itself in parallel, in order to run each value
+ * in the main parameter sweep simultaneously, using 5 cores with the `GccOptNative_5` build type, e.g.
  * {{{
- * scons -j4 chaste_libs=1 build=GccOptNative_3 projects/Wisc2013/test/TestCryptProliferationLiteratePaper.hpp
+ * scons -j4 chaste_libs=1 build=GccOptNative_5 projects/Wisc2013/test/TestCryptProliferationLiteratePaper.hpp
  * }}}
- * With these settings on our test machine, reproducing the paper results takes about 23 hours.
+ * With these settings on our test machine, reproducing the paper results takes about 19 hours.
  */
 
 /* == The code itself ==
