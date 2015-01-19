@@ -30,6 +30,7 @@ svn --username anonymous checkout https://chaste.cs.ox.ac.uk/svn/chaste/tags/Wis
 Use your email address as the password for the 'anonymous' account.
 
 '''NB''': Note that the code for this paper ''will not work'' with Chaste release 3.1 or earlier.
+It has been tested with release 3.3, but will not be tested with future versions.
 
 You are now ready to [./CryptProliferation run the simulations featured in the paper].
 
